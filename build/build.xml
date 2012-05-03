@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="CannonsAndSoldiers" default="copy" basedir=".">
+<project name="UltimateJS" default="copy" basedir=".">
 	<!-- Some settings we need for the build -->
 	<property file="build.properties" />
-	<target name="copy" depends="prepare,concatenateGameScripts, copyScripts,copyPages,copyCsses, copyImages,copySounds,copyFonts,copyResources" />
-	<target name="build" depends="prepare,compileGameScripts,copyScripts,copyPages,copyCsses, copyImages,copySounds,copyFonts,copyResources" />
+	<target name="copy" depends="prepare,concatenateGameScripts, copyScripts, build" />
+	<target name="build" depends="prepare,compileGameScripts" />
 	<!-- clean up resources-->
 	<target name="cleanUp">
 	</target>
@@ -16,16 +16,16 @@
 	</target>
 	<!-- compile scripts-->
 	<target name="concatenateGameScripts">
-		<concat destfile="${dir.scripts-compiled}/loader.js">
+		<concat destfile="${dir.min}/loader.js">
 			<filelist dir="${dir.engine}/${dir.scripts}">
 				<file name="utils/loader.js" />
 			</filelist>
 		</concat>
-		<concat destfile="${dir.scripts-compiled}/game.js">
+		<concat destfile="${dir.min}/ultimateJS.js">
 			<filelist dir="${dir.engine}/${dir.scripts}">
 				<file name="thirdParty/viewporter.js" />
 
-				<file name="utils/Utils.js" />
+				<file name="utils/utils.js" />
 				<file name="utils/assert.js" />
 				<file name="utils/sound.js" />
 				<file name="utils/screen.js" />
@@ -68,23 +68,9 @@
 				<file name="gui/GuiDialog.js" />
 
 			</filelist>
-			<filelist dir="${dir.game}/${dir.scripts}">
-				<file name="main.js" />
-				<file name="CannonsAndSoldiersAccount.js" />
-				<file name="LevelMenuState.js" />
-				<file name="MenuState.js" />
-				<file name="Cannon.js" />
-				<file name="CannonBall.js" />
-				<file name="Block.js" />	
-				<file name="ScoreEffect.js" />
-				<file name="Soldier.js" />
-				<file name="Ground.js" />
-				<file name="BattleScene.js" />
-				<file name="GameState.js" />
-				
-			</filelist>
+			
 		</concat>
-		<concat destfile="${dir.scripts-compiled}/thirdParty.js">
+		<concat destfile="${dir.min}/thirdParty.js">
 			<filelist dir="${dir.engine}/${dir.scripts}">
 				<file name="thirdParty/css_browser_selector.js" />
 				<file name="thirdParty/modernizr.js" />
@@ -92,7 +78,7 @@
 				<file name="thirdParty/iscroll.js" />
 			</filelist>
 		</concat>
-		<concat destfile="${dir.scripts-compiled}/box2d.js">
+		<concat destfile="${dir.min}/box2d.js">
 			<filelist dir="${dir.engine}/${dir.box2d}">
 				<file name="prototype.js" />
 				<file name="excanvas.js" />
@@ -164,90 +150,36 @@
 			</filelist>
 		</concat>
 	</target>
+	<!-- compile game scripts-->
 	<target name="compileGameScripts" depends="concatenateGameScripts">
-		<jscomp compilationLevel="${jscompiler.level}" warning="default" debug="false" output="${dir.scripts-compiled}/game.js">
-			<sources dir="${dir.scripts-compiled}">
-				<file name="game.js" />
+		<jscomp compilationLevel="${jscompiler.level}" warning="default" debug="false" output="${dir.min}/ultimateJS.js">
+			<sources dir="${dir.min}">
+				<file name="ultimateJS.js" />
 			</sources>
 		</jscomp>
-		<jscomp compilationLevel="simple" warning="default" debug="false" output="${dir.scripts-compiled}/thirdParty.js">
-			<sources dir="${dir.scripts-compiled}">
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="${dir.min}/thirdParty.js">
+			<sources dir="${dir.min}">
 				<file name="thirdParty.js" />
 			</sources>
 		</jscomp>
-		<jscomp compilationLevel="simple" warning="default" debug="false" output="${dir.scripts-compiled}/box2d.js">
-			<sources dir="${dir.scripts-compiled}">
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="${dir.min}/loader.js">
+					<sources dir="${dir.min}">
+						<file name="loader.js" />
+					</sources>
+		</jscomp>
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="${dir.min}/box2d.js">
+			<sources dir="${dir.min}">
 				<file name="box2d.js" />
 			</sources>
 		</jscomp>
 	</target>
 	<!-- copy scripts-->
 	<target name="copyScripts">
-		<copy todir="${deploy.home}/${scripts.home}" flatten="true">
-			<fileset dir="${dir.scripts-compiled}">
+		<copy todir="${deploy.home}/${dir.debug}" flatten="true">
+			<fileset dir="${dir.min}">
 				<include name="*.js" />
 			</fileset>
 		</copy>
-		<copy todir="${deploy.home}/${scripts.home}" flatten="true">
-			<fileset dir="${dir.engine}/${dir.scripts}/thirdParty">
-				<include name="jquery*.js" />
-				<include name="Jplayer.swf" />
-			</fileset>
-		</copy>
-		<delete file="${dir.scripts-compiled}/*.js" />
-	</target>
-	<!-- copy pages-->
-	<target name="copyPages">
-		<copy todir="${deploy.home}/${pages.home}" flatten="true">
-			<fileset dir="${dir.game}/${dir.pages}">
-				<include name="**/*.html" />
-			</fileset>
-		</copy>
-	</target>
-	<!-- copy csses-->
-	<target name="copyCsses">
-		<copy todir="${deploy.home}/${csses.home}" flatten="true">
-			<fileset dir="${dir.game}/${dir.csses}">
-				<include name="**/*.css" />
-			</fileset>
-			<fileset dir="${dir.engine}/${dir.csses}">
-				<include name="**/*.css" />
-			</fileset>
-		</copy>
-	</target>
-	<!-- copy images-->
-	<target name="copyImages">
-		<copy todir="${deploy.home}/${images.home}" flatten="false">
-			<fileset dir="${dir.game}/${dir.images}">
-				<include name="**/*.jpg" />
-				<include name="**/*.png" />
-				<include name="**/*.gif" />
-			</fileset>
-		</copy>
-	</target>
-	<!-- copy resources-->
-	<target name="copyResources">
-		<copy todir="${deploy.home}/${resources.home}" flatten="false">
-			<fileset dir="${dir.game}/${dir.resources}">
-				<include name="**/*.json" />
-				<include name="**/*.txt" />
-			</fileset>
-		</copy>
-	</target>
-	<!-- copy sounds-->
-	<target name="copySounds">
-		<copy todir="${deploy.home}/${sounds.home}" flatten="false">
-			<fileset dir="${dir.game}/${dir.sounds}">
-				<include name="**/*.*" />
-			</fileset>
-		</copy>
-	</target>
-	<!-- copy fonts-->
-	<target name="copyFonts">
-		<copy todir="${deploy.home}/${fonts.home}" flatten="false">
-			<fileset dir="${dir.game}/${dir.fonts}">
-				<include name="**/*.*" />
-			</fileset>
-		</copy>
+		<delete file="${dir.min}/*.js" />
 	</target>
 </project>
