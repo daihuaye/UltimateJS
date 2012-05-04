@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="BasicSample" default="copy" basedir=".">
+	<!-- Some settings we need for the build -->
+	<property file="build.properties" />
+	<target name="copy" depends="prepare,concatenateGameScripts, copyScripts,copyPages,copyCsses, copyImages,copySounds,copyFonts,copyResources" />
+	<target name="build" depends="prepare,compileGameScripts,copyScripts,copyPages,copyCsses, copyImages,copySounds,copyFonts,copyResources" />
+	<!-- clean up resources-->
+	<target name="cleanUp">
+	</target>
+	<!-- compile scripts-->
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${jscompiler.jar}" />
+	<!-- prepare to copy resources-->
+	<target name="prepare" depends="cleanUp">
+		<!--delete dir="${deploy.home}" /-->
+		<mkdir dir="${deploy.home}" />
+	</target>
+	<!-- compile scripts-->
+	<target name="concatenateGameScripts">
+		<concat destfile="${dir.scripts-compiled}/loader.js">
+			<filelist dir="${dir.engine}/${dir.scripts}">
+				<file name="utils/loader.js" />
+			</filelist>
+		</concat>
+		<concat destfile="${dir.scripts-compiled}/game.js">
+			<filelist dir="${dir.engine}/${dir.scripts}">
+				<file name="thirdParty/viewporter.js" />
+
+				<file name="utils/utils.js" />
+				<file name="utils/assert.js" />
+				<file name="utils/sound.js" />
+				<file name="utils/screen.js" />
+				<file name="utils/touch.js" />
+				<file name="utils/transform.js" />
+				<file name="utils/device.js" />
+				<file name="utils/dragDropManager.js" />
+				<file name="utils/factory.js" />
+				<file name="utils/resources.js" />
+
+				<file name="core/EntityFactory.js" />
+				<file name="core/Entity.js" />
+				<file name="core/BaseState.js" />
+				<file name="core/Account.js" />
+				<file name="core/LocalStorageServer.js" />
+				<file name="core/VisualEntity.js" />
+				<file name="core/Scene.js" />
+				<file name="core/Item.js" />
+				<file name="core/RoomItem.js" />
+				<file name="core/SimpleCountdown.js" />
+				<file name="core/Countdown.js" />
+				<file name="core/Inventory.js" />
+				<file name="core/logic/Actor.js" />
+				<file name="core/BackgroundState.js" />
+
+				<file name="gui/GuiFactory.js" />
+				<file name="gui/GuiContainer.js" />
+				<file name="gui/GuiElement.js" />
+				<file name="gui/GuiDiv.js" />
+				<file name="gui/GuiDialog.js" />
+				<file name="gui/GuiGroup.js" />
+				<file name="gui/GuiButton.js" />
+				<file name="gui/GuiProgressBar.js" />
+				<file name="gui/GuiMessageBox.js" />
+				<file name="gui/GuiLabel.js" />
+				<file name="gui/GuiScroll.js" />
+				<file name="gui/GuiSprite.js" />
+				<file name="gui/GuiSkeleton.js" />
+				<file name="gui/GuiScene.js" />
+			</filelist>
+			<filelist dir="${dir.game}/${dir.scripts}">
+				<file name="MenuState.js" />
+				<file name="GameState.js" />
+				<file name="main.js" />
+				<file name="basicAccount.js" />
+			</filelist>
+		</concat>
+		<concat destfile="${dir.scripts-compiled}/thirdParty.js">
+			<filelist dir="${dir.engine}/${dir.scripts}">
+				<file name="thirdParty/css_browser_selector.js" />
+				<file name="thirdParty/iscroll.js" />
+				<file name="thirdParty/modernizr.js" />
+			</filelist>
+		</concat>
+	</target>
+	<target name="compileGameScripts" depends="concatenateGameScripts">
+		<jscomp compilationLevel="${jscompiler.level}" warning="default" debug="false" output="${dir.scripts-compiled}/game.js">
+			<sources dir="${dir.scripts-compiled}">
+				<file name="game.js" />
+			</sources>
+		</jscomp>
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="${dir.scripts-compiled}/thirdParty.js">
+			<sources dir="${dir.scripts-compiled}">
+				<file name="thirdParty.js" />
+			</sources>
+		</jscomp>
+	</target>
+	<!-- copy scripts-->
+	<target name="copyScripts">
+		<copy todir="${deploy.home}/${scripts.home}" flatten="true">
+			<fileset dir="${dir.scripts-compiled}">
+				<include name="*.js" />
+			</fileset>
+		</copy>
+		<copy todir="${deploy.home}/${scripts.home}" flatten="true">
+			<fileset dir="${dir.engine}/${dir.scripts}/thirdParty">
+				<include name="jquery*.js" />
+				<include name="Jplayer.swf" />
+			</fileset>
+		</copy>
+		<delete file="${dir.scripts-compiled}/game.js" />
+		<delete file="${dir.scripts-compiled}/thirdParty.js" />
+	</target>
+	<!-- copy pages-->
+	<target name="copyPages">
+		<copy todir="${deploy.home}/${pages.home}" flatten="true">
+			<fileset dir="${dir.game}/${dir.pages}">
+				<include name="**/*.html" />
+			</fileset>
+		</copy>
+	</target>
+	<!-- copy csses-->
+	<target name="copyCsses">
+		<copy todir="${deploy.home}/${csses.home}" flatten="true">
+			<fileset dir="${dir.game}/${dir.csses}">
+				<include name="**/*.css" />
+			</fileset>
+			<fileset dir="${dir.engine}/${dir.csses}">
+				<include name="**/*.css" />
+			</fileset>
+		</copy>
+	</target>
+	<!-- copy images-->
+	<target name="copyImages">
+		<copy todir="${deploy.home}/${images.home}" flatten="false">
+			<fileset dir="${dir.game}/${dir.images}">
+				<include name="**/*.jpg" />
+				<include name="**/*.png" />
+				<include name="**/*.gif" />
+			</fileset>
+		</copy>
+	</target>
+	<!-- copy resources-->
+	<target name="copyResources">
+		<copy todir="${deploy.home}/${resources.home}" flatten="false">
+			<fileset dir="${dir.game}/${dir.resources}">
+				<!--	<include name="**/*.json" /> -->
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+	</target>
+	<!-- copy sounds-->
+	<target name="copySounds">
+		<copy todir="${deploy.home}/${sounds.home}" flatten="false">
+			<fileset dir="${dir.game}/${dir.sounds}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+	</target>
+	<!-- copy fonts-->
+	<target name="copyFonts">
+		<copy todir="${deploy.home}/${fonts.home}" flatten="false">
+			<fileset dir="${dir.game}/${dir.fonts}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+	</target>
+</project>

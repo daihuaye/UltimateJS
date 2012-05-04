@@ -1,0 +1,45 @@
+{
+	"enhancedScene": {
+		"class" : "GuiDiv",
+		"params" : {
+			"parent" : "#root",
+			"background": {
+				"image" : "introScreen.jpg"
+			},
+			"style" : "enhancedScene",
+			"enhancedScene" : true
+		}
+	},
+	"menuContainer": {
+		"class" : "GuiDiv",
+		"params" : {
+			"parent" : "enhancedScene",
+			"style" : "mainScene",
+			"innerScene" : true
+		}
+	},
+	"backToMenu" : {
+		"class" : "GuiButton",
+		"params" : {
+			"parent" : "menuContainer",
+			"normal" : {
+				"image" : "buttons/friends.png",
+				"source": "ButtonFriends.svg"
+			},		
+			"hover" : {
+				"image" : "buttons/friendsOn.png",
+				"source": "ButtonFriendsOn.svg",
+				"scale" : 120
+			},
+			"active" : {
+				"image" : "buttons/friendsOn.png",
+				"source": "ButtonFriendsOn.svg"
+			},
+			"style" : "dialogButton", 
+			"width" : 70, 
+			"height" : 60,		
+			"x" : 400,
+			"y" : 30
+		}
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"MenuState01" : {
+			"class" : "MenuState",
+			"parent" : "Account01",
+			"children" : {}
+		},
+		"GameState01" : {
+			"class" : "GameState",
+			"parent" : "Account01"
+		}
+}

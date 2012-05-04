@@ -1,0 +1,37 @@
+{
+	"countdown": {
+        "name" : "Countdown",
+        "sprite" : {
+     	   "totalImage" : "timer.png",
+        	"width" : 141,
+        	"height" : 141,
+			"totalImageWidth" : 1974,
+			"totalImageHeight" : 141,
+			"spriteAnimations" : {
+				"countdown" : {
+					"frames" : [ 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+					"row" : 0
+				},
+				"empty" : {
+					"frames" : [ 13 ],
+					"row" : 0
+				}
+			},
+			"totalTile" : 1
+		},
+		"ladbel" : {
+			"class" : "GuiLabel",
+			"params" : {
+				"style" : "dialogButton segoe-chalk",
+				"width" : 141,
+				"height" : 141,
+				"fontSize" : 36,
+				"color" : "#FFFFFF"
+			}
+		},
+		"go" : "",
+		"fontSize" : 0,
+		"tickSound" : "beepShort" ,
+		"paused" : true
+    }
+}
