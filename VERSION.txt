@@ -1,0 +1,4 @@
+Version 0.1 (04 May, 2012)
+- Version for early developers
+- Added to project to Github
+- Engine code with 'Basic' sample 
