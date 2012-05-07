@@ -115,12 +115,7 @@ Account.prototype.update = function(dt) {
 	});
 };
 Account.prototype.setEnable = function(isTrue) {
-	// if adding first object to scheduling queue start update interval
-	if (!this.globalUpdateIntervalHandle) {
-		this.globalUpdateIntervalHandle = this.setInterval(this.update,
-				this.globalUpdateInterval);
-	}
-	this.scheduledEntities[newEntity.id] = newEntity;
+	
 };
 
 /*

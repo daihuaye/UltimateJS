@@ -4,13 +4,13 @@
 		"params" : {
 			"parent" : "#root",
 			"background": {
-				"image" : "introScreen.jpg"
+				"image" : "background.png"
 			},
 			"style" : "enhancedScene",
 			"enhancedScene" : true
 		}
 	},
-	"menuContainer": {
+	"mainScene": {
 		"class" : "GuiDiv",
 		"params" : {
 			"parent" : "enhancedScene",
@@ -23,14 +23,22 @@
 		"params" : {
 			"parent" : "enhancedScene",
 			"normal" : {
-				"image" : "playButton.png"
+				"image" : "button.png",
+				"label" : {
+					"style" : "gameButton pusab-white",
+					"text" : "Play",
+					"fontSize" : 36,
+					"scale" : 100
+				}
 			},
 			"hover" : {
-				"image" : "playButton.png",
-				"scale" : 105
+				"image" : "button.png",
+				"scale" : 115,
+				"label" : {}
 			},
-			"active" : {"image" : "playButton.png",
-				"scale" : 120
+			"active" : {"image" : "button.png",
+				"scale" : 105,
+				"label" : {}
 			},
 			"style" : "gameButton",
 			"width" : 100,

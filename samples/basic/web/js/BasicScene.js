@@ -116,5 +116,5 @@ BasicScene.prototype.initItem = function(item) {
 
 BasicScene.prototype.destroy = function() {
 	BasicScene.parent.destroy.call(this);
-	$(document)['unbind'](".roomEvent");
+	$(document)['off']();
 };

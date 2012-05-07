@@ -2402,8 +2402,7 @@ Entity.prototype.clearTimeouts = function() {
 		clearTimeout(this.timeouts[i]);
 	}
 	this.timeouts = new Array();
-};
-/*
+};/*
  * BaseState - abstract class - current state of the game.
  * Loads GUI preset and operate with GUI elements.
  * Preloads any required resources
@@ -2607,7 +2606,9 @@ Account.prototype.removeEntity = function(id, dontDestroy) {
 			this.removeChild(entity);
 			entity.destroy();
 		}
+
 		delete this.allEntities[id];
+
 	}
 };
 
@@ -2655,6 +2656,7 @@ Account.prototype.update = function(dt) {
 	});
 };
 Account.prototype.setEnable = function(isTrue) {
+	
 };
 
 /*
@@ -2826,8 +2828,12 @@ Account.prototype.showDialog = function(dialog) {
 	dialog.result = returnValue;
 };
 
+
 /*
  * NETWORKING FUNCTIONS dealing with external server
+/*
+ *  NETWORKING FUNCTIONS
+ *  dealing with external server
  */
 // Creates/Updates/Destroy all active entities
 Account.prototype.readGlobalUpdate = function(data) {
@@ -2908,7 +2914,6 @@ Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 	if (syncInterval != null) {
 		this.clearTimeout(this.syncWithServerTimeoutId);
 		var that = this;
-		// console.log("SHEDULE");
 		this.syncWithServerTimeoutId = this.setTimeout(function() {
 			that.syncWithServer();
 		}, 5000);
@@ -6697,7 +6702,8 @@ GuiSprite.prototype.setRealBackgroundPosition = function(offsetX, offsetY) {
 GuiSprite.prototype.resizeBackground = function() {
 	var size = Screen.calcRealSize(this.totalWidth, this.totalHeight);
 	this.jObject['css']("background-size", size.x + "px " + size.y + "px");
-};/*
+};
+/*
  * GuiSkeleton - container for animated objects, consists of:
  * - array of bones or bodyparts 
  * - keyframes
@@ -7396,9 +7402,11 @@ BasicScene.prototype.initItem = function(item) {
 
 BasicScene.prototype.destroy = function() {
 	BasicScene.parent.destroy.call(this);
-	$(document)['unbind'](".roomEvent");
+	$(document)['off']();
 };
-
+/*
+ * Game state is a application state where all the game logic is happens
+ */
 
 GameState.prototype = new BaseState();
 GameState.prototype.constructor = GameState;
@@ -7447,7 +7455,8 @@ GameState.prototype.init = function(params) {
 GameState.prototype.resize = function() {
 	
 	GameState.parent.resize.call(this);
-};/**
+};
+/**
  * Main.js
  */
 
@@ -7496,7 +7505,9 @@ $(document).ready(function() {
 
 });
 /**
- * 
+ * BasicAccount is derived from Account. Accounts handle all system information,
+ * perform serialization and networking. All entities are childrens of account.
+ * Account.instance - is a singletone for account.
  */
 
 BasicAccount.prototype = new Account();
@@ -7528,6 +7539,7 @@ BasicAccount.prototype.init = function() {
 	}
 };
 
+	// Description of states
 this.states["GameState01"] = {
 	"GameState01" : {
 		"class" : "GameState",
@@ -7558,6 +7570,8 @@ this.states["GameState01"] = {
 	Account.instance = this;
 };
 
+//SwitchState perform fading in, and  swithching state,
+//which mean changing entities from one account to another.
 BasicAccount.prototype.switchState = function(stateName, id,
 		parentId) {
 	var that = this;
