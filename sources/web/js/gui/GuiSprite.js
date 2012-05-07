@@ -25,7 +25,7 @@ guiFactory.addClass(GuiSprite);
 
 GuiSprite.prototype.initialize = function(params) {
 	GuiSprite.parent.initialize.call(this, params);
-	
+
 	this.clampByViewport = this.clampByViewportSimple;
 
 	this.totalWidth = params['totalImageWidth'];
@@ -216,7 +216,6 @@ GuiSprite.prototype.animate = function(moveVector, duration) {
 
 GuiSprite.prototype.flip = function(needToBeFlipped) {
 	this.flipped = needToBeFlipped;
-	this.scale = this.flipped ? -1 : 1;
 	this.transform();
 };
 
@@ -232,19 +231,10 @@ GuiSprite.prototype.transform = function(transfromations) {
 			this.translate = transfromations.translate;
 	}
 
-	if (Device.nativeRender()) {
-		var scale = this.scale == undefined ? 1 : this.scale;
-		var scaleX = scale * Screen.widthRatio();
-		var scaleY = scale * Screen.heightRatio();
-		var translateX = (this.x + this.width / 2) * Screen.widthRatio();
-		var translateY = (this.y + this.height / 2) * Screen.heightRatio();
-		assert(this.nativeRenderImageId !== undefined,
-				"nativeRenderImageId not set");
-		Device.nativeRender().updateImage(this.nativeRenderImageId, translateX,
-				translateY, scaleX, scaleY, this.angle);
-	} else
-		cssTransform(this.jObject, this.matrix, this.angle, this.scale,
-				this.scale, this.translate);
+	var scaleX = selectValue(this.scale * (this.flipped ? -1 : 1), 1);
+	var scaleY = selectValue(this.scale, 1);
+	cssTransform(this.jObject, this.matrix, this.angle, scaleX,
+			scaleY, this.translate);
 };
 
 GuiSprite.prototype.rotate = function(angle) {
