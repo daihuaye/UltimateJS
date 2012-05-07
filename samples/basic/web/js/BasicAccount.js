@@ -1,5 +1,7 @@
 /**
- * 
+ * BasicAccount is derived from Account. Accounts handle all system information,
+ * perform serialization and networking. All entities are childrens of account.
+ * Account.instance - is a singletone for account.
  */
 
 BasicAccount.prototype = new Account();
@@ -22,27 +24,30 @@ BasicAccount.prototype.jsonPreloadComplete = function() {
 BasicAccount.prototype.init = function() {
 	BasicAccount.parent.init.call(this);
 	this.states = new Object();
-	//
-	this.states["MenuState01"] = {
-	"MenuState01" : {
-		"class" : "MenuState",
-		"parent" : "Account01",
-		"children" : {}
-	}
-};
-
-this.states["GameState01"] = {
-	"GameState01" : {
-		"class" : "GameState",
-		"parent" : "Account01"
-	}
-};
 	
+	
+	// Description of states
+	this.states["MenuState01"] = {
+		"MenuState01" : {
+			"class" : "MenuState",
+			"parent" : "Account01"
+		}
+	};
+
+	this.states["GameState01"] = {
+		"GameState01" : {
+			"class" : "GameState",
+			"parent" : "Account01"
+		}
+	};
+
 	Account.instance = this;
 };
 
-BasicAccount.prototype.switchState = function(stateName, id,
-		parentId) {
+
+// SwitchState perform fading in, and  swithching state,
+// which mean changing entities from one account to another.
+BasicAccount.prototype.switchState = function(stateName, id, parentId) {
 	var that = this;
 	this.backgroundState.fadeIn(LEVEL_FADE_TIME, "white", function() {
 		var data = new Object();
@@ -53,7 +58,7 @@ BasicAccount.prototype.switchState = function(stateName, id,
 				data[id] = {
 					"destroy" : true
 				};
-				console.log(stateName,data);
+				console.log(stateName, data);
 				that.readGlobalUpdate(data);
 			}
 		});

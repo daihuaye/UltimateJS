@@ -1,4 +1,6 @@
-
+/*
+ * Game state is a application state where all the game logic is happens
+ */
 
 GameState.prototype = new BaseState();
 GameState.prototype.constructor = GameState;
