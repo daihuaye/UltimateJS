@@ -65,7 +65,9 @@ Account.prototype.removeEntity = function(id, dontDestroy) {
 			this.removeChild(entity);
 			entity.destroy();
 		}
+
 		delete this.allEntities[id];
+
 	}
 };
 
@@ -113,6 +115,12 @@ Account.prototype.update = function(dt) {
 	});
 };
 Account.prototype.setEnable = function(isTrue) {
+	// if adding first object to scheduling queue start update interval
+	if (!this.globalUpdateIntervalHandle) {
+		this.globalUpdateIntervalHandle = this.setInterval(this.update,
+				this.globalUpdateInterval);
+	}
+	this.scheduledEntities[newEntity.id] = newEntity;
 };
 
 /*
@@ -284,8 +292,12 @@ Account.prototype.showDialog = function(dialog) {
 	dialog.result = returnValue;
 };
 
+
 /*
  * NETWORKING FUNCTIONS dealing with external server
+/*
+ *  NETWORKING FUNCTIONS
+ *  dealing with external server
  */
 // Creates/Updates/Destroy all active entities
 Account.prototype.readGlobalUpdate = function(data) {
@@ -366,7 +378,6 @@ Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 	if (syncInterval != null) {
 		this.clearTimeout(this.syncWithServerTimeoutId);
 		var that = this;
-		// console.log("SHEDULE");
 		this.syncWithServerTimeoutId = this.setTimeout(function() {
 			that.syncWithServer();
 		}, 5000);
