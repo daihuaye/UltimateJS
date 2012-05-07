@@ -30,8 +30,8 @@ GameState.prototype.jsonPreloadComplete = function() {
 GameState.prototype.init = function(params) {
 	GameState.parent.init.call(this, params);
 	Account.instance.backgroundState.fadeOut(LEVEL_FADE_TIME, function() {
-		
 	});
+	
 	guiFactory.createGuiFromJson(this.resources.json[GAME_STATE_UI_FILE], this);
 	var that = this;
 
@@ -39,14 +39,12 @@ GameState.prototype.init = function(params) {
 	playButton.bind(function(e) {
 		Account.instance.switchState("MenuState01", that.id, that.parent.id);
 	});
-
-	Loader['hideLoadingMessage']();
-	$(window)['trigger']("resize");
-	// loadGame();
 	
-	//this.resize();
-	console.log("game scene",this.getGui("enhancedScene"));
+	this.scene = Account.instance.getEntity(params['scene']);
+	this.scene.attachToGui(this.getGui("mainScene"));
+	
 };
 GameState.prototype.resize = function() {
+	
 	GameState.parent.resize.call(this);
 };

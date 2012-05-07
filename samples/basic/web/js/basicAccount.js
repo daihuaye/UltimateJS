@@ -34,7 +34,27 @@ BasicAccount.prototype.init = function() {
 this.states["GameState01"] = {
 	"GameState01" : {
 		"class" : "GameState",
-		"parent" : "Account01"
+		"parent" : "Account01",
+		"scene" : "Scene01",
+		"children": {
+		}
+	},
+	"Scene01" : {
+		"class" : "BasicScene",
+		"parent" : "GameState01",
+		"wall" : "WallRoomRich00",
+		"floor" : "FloorBathBeginner01",
+		"x" : 0,
+		"y" : 0,
+		"width" : 800,
+		"height" : 500
+	},
+	"basicCharacter01" : {
+		"class" : "BasicCharacter",
+		"parent" : "Scene01",
+		"description" : "monkey",
+		"x" : 300,
+		"y" : 352
 	}
 };
 	

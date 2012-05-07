@@ -632,11 +632,20 @@ GuiElement.prototype.enableTouchEvents = function(push) {
 GuiElement.prototype.isPointInsideReal = function(x, y) {
 	var pos = this.jObject.offset();
 	var width = this.jObject.width();
-	var height = this.jObject.height();
+	var height = this.jObject.height(); 
 	if ((x > pos.left && x < (pos.left + width))
 			&& (y > pos.top && y < (pos.top + height))) {
 		return true;
 	} else {
 		return false;
 	}
+};
+
+GuiElement.prototype.getEventPosition = function(e){
+	var pos = Device.getPositionFromEvent(e);
+	var elementPos = this.jObject['offset']();
+	var needed = {}; 
+	needed.x =  pos.x - elementPos.left;
+	needed.y =  pos.y - elementPos.top;
+	return Screen.calcLogicSize(needed.x, needed.y);
 };

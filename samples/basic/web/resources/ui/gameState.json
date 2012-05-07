@@ -3,9 +3,6 @@
 		"class" : "GuiDiv",
 		"params" : {
 			"parent" : "#root",
-			"background": {
-				"image" : "introScreen.jpg"
-			},
 			"style" : "enhancedScene",
 			"enhancedScene" : true
 		}
@@ -21,7 +18,7 @@
 	"backToMenu" : {
 		"class" : "GuiButton",
 		"params" : {
-			"parent" : "menuContainer",
+			"parent" : "enhancedScene",
 			"normal" : {
 				"image" : "buttons/friends.png",
 				"source": "ButtonFriends.svg"

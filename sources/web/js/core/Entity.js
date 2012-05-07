@@ -27,6 +27,9 @@ Entity.prototype.init = function(params) {
 		console.log(" No parent provided for entity with id='" + this.id + "'");
 	}
 
+	var enabled = selectValue(params['enabled'], true);
+	this.setEnable(enabled);
+	
 	// this.readUpdate(params);
 	this.timeouts = null;
 	this.intervals = null;
@@ -79,8 +82,26 @@ Entity.prototype.initChildren = function(params) {
 	}
 };
 
-// Synchronization with server
+// scheduled update
+Entity.prototype.update = null;
 
+Entity.prototype.isEnabled = function() {
+	return this.enabled;
+};
+
+Entity.prototype.setEnable = function(isTrue) {
+	this.enabled = isTrue;
+	if(typeof(this.update) == "function") {
+		if(isTrue) {
+			Account.instance.addScheduledEntity(this);
+		} else {
+			Account.instance.removeScheduledEntity(this);
+		}
+	}
+};
+
+
+// Synchronization with server
 Entity.prototype.setDirty = function() {
 	var that = this;
 	$['each'](arguments, function(id, val) {

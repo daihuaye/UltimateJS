@@ -68,6 +68,8 @@
 			</filelist>
 			<filelist dir="${dir.game}/${dir.scripts}">
 				<file name="MenuState.js" />
+				<file name="BasicCharacter.js" />
+				<file name="BasicScene.js" />
 				<file name="GameState.js" />
 				<file name="main.js" />
 				<file name="basicAccount.js" />
