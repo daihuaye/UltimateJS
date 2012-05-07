@@ -5,7 +5,7 @@
 Account.prototype = new BaseState();
 Account.prototype.constructor = Account;
 
-var UPDATE_TIME = 20;
+var GLOBAL_UPDATE_INTERVAL = 50;
 
 /**
  * @constructor
@@ -21,37 +21,29 @@ Account.prototype.init = function(params) {
 	Account.parent.init.call(this, params);
 	// associative array of all active entities
 	this.allEntities = new Object();
+	// entities that should be update on timely basis
+	this.scheduledEntities = new Object();
 
 	// time interval for scheduled synchronization with server
 	this.syncWithServerInterval = params['syncWithServerInterval'];
 	// adding itself to allEntities for reading updates
 	// in automatic mode
 	this.id = selectValue(params['id'], "Account01");
+	this.globalUpdateInterval = selectValue(params['globalUpdateInterval'],
+			GLOBAL_UPDATE_INTERVAL);
+
 	this.addEntity(this);
 	// permanent GUI element
 	this.backgroundState = new BackgroundState();
 	params['backgroundState'] = selectValue(params['backgroundState'], {});
-	params['backgroundState']['id'] = selectValue(params['backgroundState']['id'], "backgroundState01");
+	params['backgroundState']['id'] = selectValue(
+			params['backgroundState']['id'], "backgroundState01");
 	this.backgroundState.activate(params['backgroundState']);
 
 	// a singleton object
 	assert(Account.instance == null,
 			"Only one account object at time are allowed");
 	Account.instance = this;
-
-	var that = this;
-	// TODO change to scheduled update, when
-	// every entity that needs update add itself to update function
-	var update = function() {
-		// console.log("update");
-		$['each'](that.allEntities, function(id, entity) {
-			if (entity && entity.update) {
-				entity.update(UPDATE_TIME);
-			}
-		});
-		setTimeout(update, UPDATE_TIME);
-	};
-	update();
 };
 
 Account.prototype.addEntity = function(newEntity) {
@@ -69,12 +61,11 @@ Account.prototype.removeEntity = function(id, dontDestroy) {
 	var entity = this.allEntities[id];
 	if (entity) {
 		if (!dontDestroy) {
+			this.removeScheduledEntity(entity);
 			this.removeChild(entity);
 			entity.destroy();
 		}
-		//entity.children = null;
-		//delete this.allEntities[id];
-		this.allEntities[id] = null;
+		delete allEntities[id];
 	}
 };
 
@@ -86,11 +77,48 @@ Account.prototype.removeAllEntities = function(id, dontDestroy) {
 	});
 };
 
+/*
+ * Scheduling for children entities
+ */
+Account.prototype.addScheduledEntity = function(newEntity) {
+	assert(typeof (newEntity.id) == "string", "Entity ID must be string");
+
+	// if adding first object to scheduling queue start update interval
+	if (!this.globalUpdateIntervalHandle) {
+		this.globalUpdateIntervalHandle = this.setInterval(this.update,
+				this.globalUpdateInterval);
+	}
+	this.scheduledEntities[newEntity.id] = newEntity;
+};
+
+Account.prototype.removeScheduledEntity = function(entity) {
+	assert(typeof (entity.id) == "string", "Entity ID must be string");
+	delete this.scheduledEntities[id];
+	// if nothing to schedule anymore stop interval either
+	if (!this.globalUpdateIntervalHandle
+			&& $['isEmptyObject'](this.scheduledEntities)) {
+		this.clearInteval(this.globalUpdateIntervalHandle);
+		this.globalUpdateIntervalHandle = null;
+	}
+};
+
+// Regular scheduled update for registered enities
+Account.prototype.update = function(dt) {
+	$['each'](this.scheduledEntities, function(id, entity) {
+		if (entity && entity.isEnabled()) {
+			entity.update(dt);
+		}
+	});
+};
+
+/*
+ * Serialization for the network or local data
+ */
 Account.prototype.readUpdate = function(params) {
 	this.money = params['money'];
 	this.premiumMoney = params['premiumMoney'];
 	this.energy = params['energy'];
-	if(this.energy <= 0){
+	if (this.energy <= 0) {
 		this.energy = 0;
 	}
 	this.happyness = params['happyness'];
@@ -111,6 +139,7 @@ Account.prototype.writeUpdate = function(globalData, entityData) {
 	this.serverCommands = null;
 	Account.parent.writeUpdate.call(this, globalData, entityData);
 };
+
 // called from outside, to notify entities about
 // screen resize
 Account.prototype.resize = function() {
@@ -251,18 +280,23 @@ Account.prototype.showDialog = function(dialog) {
 	dialog.result = returnValue;
 };
 
-// NETWORKING FUNCTIONS
+
+
+/*
+ *  NETWORKING FUNCTIONS
+ *  dealing with external server
+ */
 // Creates/Updates/Destroy all active entities
 Account.prototype.readGlobalUpdate = function(data) {
 	var that = this;
 	$['each'](data, function(id, element) {
-//		console.log("readGlobalUpdate key is ", id);
+		// console.log("readGlobalUpdate key is ", id);
 		var entity = Account.instance.getEntity(id);
 		// entity already exists
 		if (entity) {
 			// entity should be destroyed with all of its children
 			if (element["destroy"]) {
-//				console.log("!!!!!Destroy entity '" + entity.id + "'");
+				// console.log("!!!!!Destroy entity '" + entity.id + "'");
 				that.removeEntity(id);
 				// remove entity from data
 				delete data[id];
@@ -273,16 +307,16 @@ Account.prototype.readGlobalUpdate = function(data) {
 			return;
 		} else {
 			var parentEntity = Account.instance.getEntity(element['parent']);
-			if(parentEntity){
-			// create new entity
-			element["id"] = id;
-			entity = entityFactory.createObject(element["class"], element);
-			// viking test
-			// entity.parent = element.parent;
-			that.addEntity(entity);
-//			console.log("New entity '" + entity.id + "' of class "
-//					+ element["class"] + " with parent '"
-//					+ (entity.parent ? entity.parent.id : "no parent") + "'");
+			if (parentEntity) {
+				// create new entity
+				element["id"] = id;
+				entity = entityFactory.createObject(element["class"], element);
+				// viking test
+				// entity.parent = element.parent;
+				that.addEntity(entity);
+				// console.log("New entity '" + entity.id + "' of class "
+				// + element["class"] + " with parent '"
+				// + (entity.parent ? entity.parent.id : "no parent") + "'");
 			}
 		}
 	});
@@ -290,7 +324,6 @@ Account.prototype.readGlobalUpdate = function(data) {
 
 // Serialize all entities to JSON
 Account.prototype.writeGlobalUpdate = function() {
-	var that = this;
 	var data = {};
 	this.writeUpdate(data, new Object());
 	return data;
@@ -332,7 +365,7 @@ Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 	if (syncInterval != null) {
 		this.clearTimeout(this.syncWithServerTimeoutId);
 		var that = this;
-		console.log("SHEDULE");
+		//console.log("SHEDULE");
 		this.syncWithServerTimeoutId = this.setTimeout(function() {
 			that.syncWithServer();
 		}, 5000);
