@@ -110,7 +110,7 @@ GuiSprite.prototype.updateAnimation = function() {
 			return;
 		}
 	}
-
+	
 	// console.log("Frames " + this.currentFrame);
 	var rowFramesLength = Math.round(this.totalWidth / this.width);
 	var frame = this.animations[this.currentAnimation].frames[this.currentFrame];
@@ -130,6 +130,7 @@ GuiSprite.prototype.updateAnimation = function() {
 	this.setRealBackgroundPosition();
 
 	this.currentFrame++;
+	
 
 };
 
@@ -174,6 +175,7 @@ GuiSprite.prototype.playAnimation = function(animationName, duration, isLooped,
 	this.currentFrameTime = 0;
 	this.lastUpdateTime = (new Date()).getTime();
 
+	console.log(this.animations[this.currentAnimation].frameDuration);
 	if (duration) {
 		this.currentFrameLength = duration / animation.frames.length;
 		// console.log("frame lenght " + this.currentFrameLength + ", " +
@@ -231,10 +233,11 @@ GuiSprite.prototype.transform = function(transfromations) {
 			this.translate = transfromations.translate;
 	}
 
-	var scaleX = selectValue(this.scale * (this.flipped ? -1 : 1), 1);
 	var scaleY = selectValue(this.scale, 1);
-	cssTransform(this.jObject, this.matrix, this.angle, scaleX,
-			scaleY, this.translate);
+	var scaleX = scaleY;
+	scaleX *= (this.flipped ? -1 : 1);
+	cssTransform(this.jObject, this.matrix, this.angle, scaleX, scaleY,
+			this.translate);
 };
 
 GuiSprite.prototype.rotate = function(angle) {

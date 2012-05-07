@@ -2233,6 +2233,9 @@ Entity.prototype.init = function(params) {
 		console.log(" No parent provided for entity with id='" + this.id + "'");
 	}
 
+	var enabled = selectValue(params['enabled'], true);
+	this.setEnable(enabled);
+	
 	// this.readUpdate(params);
 	this.timeouts = null;
 	this.intervals = null;
@@ -2285,8 +2288,26 @@ Entity.prototype.initChildren = function(params) {
 	}
 };
 
-// Synchronization with server
+// scheduled update
+Entity.prototype.update = null;
 
+Entity.prototype.isEnabled = function() {
+	return this.enabled;
+};
+
+Entity.prototype.setEnable = function(isTrue) {
+	this.enabled = isTrue;
+	if(typeof(this.update) == "function") {
+		if(isTrue) {
+			Account.instance.addScheduledEntity(this);
+		} else {
+			Account.instance.removeScheduledEntity(this);
+		}
+	}
+};
+
+
+// Synchronization with server
 Entity.prototype.setDirty = function() {
 	var that = this;
 	$['each'](arguments, function(id, val) {
@@ -2381,8 +2402,7 @@ Entity.prototype.clearTimeouts = function() {
 		clearTimeout(this.timeouts[i]);
 	}
 	this.timeouts = new Array();
-};
-/*
+};/*
  * BaseState - abstract class - current state of the game.
  * Loads GUI preset and operate with GUI elements.
  * Preloads any required resources
@@ -2526,7 +2546,7 @@ BaseState.prototype.preloadMedia = function(mediaToPreload, callback) {
 Account.prototype = new BaseState();
 Account.prototype.constructor = Account;
 
-var UPDATE_TIME = 20;
+var GLOBAL_UPDATE_INTERVAL = 50;
 
 /**
  * @constructor
@@ -2542,37 +2562,29 @@ Account.prototype.init = function(params) {
 	Account.parent.init.call(this, params);
 	// associative array of all active entities
 	this.allEntities = new Object();
+	// entities that should be update on timely basis
+	this.scheduledEntities = new Object();
 
 	// time interval for scheduled synchronization with server
 	this.syncWithServerInterval = params['syncWithServerInterval'];
 	// adding itself to allEntities for reading updates
 	// in automatic mode
 	this.id = selectValue(params['id'], "Account01");
+	this.globalUpdateInterval = selectValue(params['globalUpdateInterval'],
+			GLOBAL_UPDATE_INTERVAL);
+
 	this.addEntity(this);
 	// permanent GUI element
 	this.backgroundState = new BackgroundState();
 	params['backgroundState'] = selectValue(params['backgroundState'], {});
-	params['backgroundState']['id'] = selectValue(params['backgroundState']['id'], "backgroundState01");
+	params['backgroundState']['id'] = selectValue(
+			params['backgroundState']['id'], "backgroundState01");
 	this.backgroundState.activate(params['backgroundState']);
 
 	// a singleton object
 	assert(Account.instance == null,
 			"Only one account object at time are allowed");
 	Account.instance = this;
-
-	var that = this;
-	// TODO change to scheduled update, when
-	// every entity that needs update add itself to update function
-	var update = function() {
-		// console.log("update");
-		$['each'](that.allEntities, function(id, entity) {
-			if (entity && entity.update) {
-				entity.update(UPDATE_TIME);
-			}
-		});
-		setTimeout(update, UPDATE_TIME);
-	};
-	update();
 };
 
 Account.prototype.addEntity = function(newEntity) {
@@ -2590,12 +2602,13 @@ Account.prototype.removeEntity = function(id, dontDestroy) {
 	var entity = this.allEntities[id];
 	if (entity) {
 		if (!dontDestroy) {
+			this.removeScheduledEntity(entity);
 			this.removeChild(entity);
 			entity.destroy();
 		}
-		//entity.children = null;
-		//delete this.allEntities[id];
-		this.allEntities[id] = null;
+
+		delete this.allEntities[id];
+
 	}
 };
 
@@ -2607,11 +2620,53 @@ Account.prototype.removeAllEntities = function(id, dontDestroy) {
 	});
 };
 
+/*
+ * Scheduling for children entities
+ */
+Account.prototype.addScheduledEntity = function(newEntity) {
+	assert(typeof (newEntity.id) == "string", "Entity ID must be string");
+	var that = this;
+	var dt = this.globalUpdateInterval;
+	// if adding first object to scheduling queue start update interval
+	if (!this.globalUpdateIntervalHandle) {
+		this.globalUpdateIntervalHandle = this.setInterval(function() {
+			that.update(dt);
+		}, dt);
+	}
+	this.scheduledEntities[newEntity.id] = newEntity;
+};
+
+Account.prototype.removeScheduledEntity = function(entity) {
+	assert(typeof (entity.id) == "string", "Entity ID must be string");
+	delete this.scheduledEntities[entity.id];
+	// if nothing to schedule anymore stop interval either
+	if (!this.globalUpdateIntervalHandle
+			&& $['isEmptyObject'](this.scheduledEntities)) {
+		this.clearInterval(this.globalUpdateIntervalHandle);
+		this.globalUpdateIntervalHandle = null;
+	}
+};
+
+// Regular scheduled update for registered enities
+Account.prototype.update = function(dt) {
+	$['each'](this.scheduledEntities, function(id, entity) {
+		if (entity && entity.isEnabled()) {
+			entity.update(dt);
+		}
+	});
+};
+Account.prototype.setEnable = function(isTrue) {
+	
+};
+
+/*
+ * Serialization for the network or local data
+ */
 Account.prototype.readUpdate = function(params) {
 	this.money = params['money'];
 	this.premiumMoney = params['premiumMoney'];
 	this.energy = params['energy'];
-	if(this.energy <= 0){
+	if (this.energy <= 0) {
 		this.energy = 0;
 	}
 	this.happyness = params['happyness'];
@@ -2632,6 +2687,7 @@ Account.prototype.writeUpdate = function(globalData, entityData) {
 	this.serverCommands = null;
 	Account.parent.writeUpdate.call(this, globalData, entityData);
 };
+
 // called from outside, to notify entities about
 // screen resize
 Account.prototype.resize = function() {
@@ -2772,18 +2828,24 @@ Account.prototype.showDialog = function(dialog) {
 	dialog.result = returnValue;
 };
 
-// NETWORKING FUNCTIONS
+
+/*
+ * NETWORKING FUNCTIONS dealing with external server
+/*
+ *  NETWORKING FUNCTIONS
+ *  dealing with external server
+ */
 // Creates/Updates/Destroy all active entities
 Account.prototype.readGlobalUpdate = function(data) {
 	var that = this;
 	$['each'](data, function(id, element) {
-//		console.log("readGlobalUpdate key is ", id);
+		// console.log("readGlobalUpdate key is ", id);
 		var entity = Account.instance.getEntity(id);
 		// entity already exists
 		if (entity) {
 			// entity should be destroyed with all of its children
 			if (element["destroy"]) {
-//				console.log("!!!!!Destroy entity '" + entity.id + "'");
+				// console.log("!!!!!Destroy entity '" + entity.id + "'");
 				that.removeEntity(id);
 				// remove entity from data
 				delete data[id];
@@ -2794,16 +2856,16 @@ Account.prototype.readGlobalUpdate = function(data) {
 			return;
 		} else {
 			var parentEntity = Account.instance.getEntity(element['parent']);
-			if(parentEntity){
-			// create new entity
-			element["id"] = id;
-			entity = entityFactory.createObject(element["class"], element);
-			// viking test
-			// entity.parent = element.parent;
-			that.addEntity(entity);
-//			console.log("New entity '" + entity.id + "' of class "
-//					+ element["class"] + " with parent '"
-//					+ (entity.parent ? entity.parent.id : "no parent") + "'");
+			if (parentEntity) {
+				// create new entity
+				element["id"] = id;
+				entity = entityFactory.createObject(element["class"], element);
+				// viking test
+				// entity.parent = element.parent;
+				that.addEntity(entity);
+				// console.log("New entity '" + entity.id + "' of class "
+				// + element["class"] + " with parent '"
+				// + (entity.parent ? entity.parent.id : "no parent") + "'");
 			}
 		}
 	});
@@ -2811,7 +2873,6 @@ Account.prototype.readGlobalUpdate = function(data) {
 
 // Serialize all entities to JSON
 Account.prototype.writeGlobalUpdate = function() {
-	var that = this;
 	var data = {};
 	this.writeUpdate(data, new Object());
 	return data;
@@ -2853,7 +2914,6 @@ Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 	if (syncInterval != null) {
 		this.clearTimeout(this.syncWithServerTimeoutId);
 		var that = this;
-		console.log("SHEDULE");
 		this.syncWithServerTimeoutId = this.setTimeout(function() {
 			that.syncWithServer();
 		}, 5000);
@@ -4856,13 +4916,22 @@ GuiElement.prototype.enableTouchEvents = function(push) {
 GuiElement.prototype.isPointInsideReal = function(x, y) {
 	var pos = this.jObject.offset();
 	var width = this.jObject.width();
-	var height = this.jObject.height();
+	var height = this.jObject.height(); 
 	if ((x > pos.left && x < (pos.left + width))
 			&& (y > pos.top && y < (pos.top + height))) {
 		return true;
 	} else {
 		return false;
 	}
+};
+
+GuiElement.prototype.getEventPosition = function(e){
+	var pos = Device.getPositionFromEvent(e);
+	var elementPos = this.jObject['offset']();
+	var needed = {}; 
+	needed.x =  pos.x - elementPos.left;
+	needed.y =  pos.y - elementPos.top;
+	return Screen.calcLogicSize(needed.x, needed.y);
 };
 /*
  * GuiDiv - main GuiElement with background manipulations,
@@ -6357,7 +6426,7 @@ guiFactory.addClass(GuiSprite);
 
 GuiSprite.prototype.initialize = function(params) {
 	GuiSprite.parent.initialize.call(this, params);
-	
+
 	this.clampByViewport = this.clampByViewportSimple;
 
 	this.totalWidth = params['totalImageWidth'];
@@ -6442,7 +6511,7 @@ GuiSprite.prototype.updateAnimation = function() {
 			return;
 		}
 	}
-
+	
 	// console.log("Frames " + this.currentFrame);
 	var rowFramesLength = Math.round(this.totalWidth / this.width);
 	var frame = this.animations[this.currentAnimation].frames[this.currentFrame];
@@ -6462,6 +6531,7 @@ GuiSprite.prototype.updateAnimation = function() {
 	this.setRealBackgroundPosition();
 
 	this.currentFrame++;
+	
 
 };
 
@@ -6506,6 +6576,7 @@ GuiSprite.prototype.playAnimation = function(animationName, duration, isLooped,
 	this.currentFrameTime = 0;
 	this.lastUpdateTime = (new Date()).getTime();
 
+	console.log(this.animations[this.currentAnimation].frameDuration);
 	if (duration) {
 		this.currentFrameLength = duration / animation.frames.length;
 		// console.log("frame lenght " + this.currentFrameLength + ", " +
@@ -6548,7 +6619,6 @@ GuiSprite.prototype.animate = function(moveVector, duration) {
 
 GuiSprite.prototype.flip = function(needToBeFlipped) {
 	this.flipped = needToBeFlipped;
-	this.scale = this.flipped ? -1 : 1;
 	this.transform();
 };
 
@@ -6564,19 +6634,11 @@ GuiSprite.prototype.transform = function(transfromations) {
 			this.translate = transfromations.translate;
 	}
 
-	if (Device.nativeRender()) {
-		var scale = this.scale == undefined ? 1 : this.scale;
-		var scaleX = scale * Screen.widthRatio();
-		var scaleY = scale * Screen.heightRatio();
-		var translateX = (this.x + this.width / 2) * Screen.widthRatio();
-		var translateY = (this.y + this.height / 2) * Screen.heightRatio();
-		assert(this.nativeRenderImageId !== undefined,
-				"nativeRenderImageId not set");
-		Device.nativeRender().updateImage(this.nativeRenderImageId, translateX,
-				translateY, scaleX, scaleY, this.angle);
-	} else
-		cssTransform(this.jObject, this.matrix, this.angle, this.scale,
-				this.scale, this.translate);
+	var scaleY = selectValue(this.scale, 1);
+	var scaleX = scaleY;
+	scaleX *= (this.flipped ? -1 : 1);
+	cssTransform(this.jObject, this.matrix, this.angle, scaleX, scaleY,
+			this.translate);
 };
 
 GuiSprite.prototype.rotate = function(angle) {
@@ -6640,7 +6702,8 @@ GuiSprite.prototype.setRealBackgroundPosition = function(offsetX, offsetY) {
 GuiSprite.prototype.resizeBackground = function() {
 	var size = Screen.calcRealSize(this.totalWidth, this.totalHeight);
 	this.jObject['css']("background-size", size.x + "px " + size.y + "px");
-};/*
+};
+/*
  * GuiSkeleton - container for animated objects, consists of:
  * - array of bones or bodyparts 
  * - keyframes
@@ -7090,7 +7153,260 @@ MenuState.prototype.init = function(params) {
 MenuState.prototype.resize = function() {
 	MenuState.parent.resize.call(this);
 };
+var SPEED_MOVE = 100;
+BasicCharacter.prototype = new VisualEntity();
+BasicCharacter.prototype.constructor = BasicCharacter;
 
+/**
+ * @constructor
+ */
+function BasicCharacter() {
+	BasicCharacter.parent.constructor.call(this);
+};
+
+BasicCharacter.inheritsFrom(VisualEntity);
+BasicCharacter.prototype.className = "BasicCharacter";
+
+BasicCharacter.prototype.createInstance = function(params) {
+	var entity = new BasicCharacter();
+	entity.init(params);
+	return entity;
+};
+
+entityFactory.addClass(BasicCharacter);
+
+BasicCharacter.prototype.init = function(params) {
+	BasicCharacter.parent.init.call(this, params);
+	this.speed = selectValue(params['speed'], SPEED_MOVE);
+	this.stashed = params['stashed'];
+	this.flagMove = false;
+	this.clickPosition = {};
+	this.lastDirection = null;
+
+	if (this.stashed) {
+		return;
+	} else {
+		var guiParent = this.params['guiParent'] ? this.params['guiParent']
+				: this.parent.visual;
+		if (guiParent) {
+			this.attachToGui(guiParent);
+		}
+	}
+
+	this.z = (this.z != null) ? this.z : 0;
+};
+
+BasicCharacter.prototype.createVisual = function() {
+	this.assert(this.guiParent, "No gui parent provided for creating visuals");
+	this.description = Account.instance.descriptionsData[this.params['description']];
+	this.assert(this.description, "There is no correct description");
+
+	var totalImage = Resources.getImage(this.description['totalImage']);
+
+	visual = guiFactory.createObject("GuiSprite", {
+		parent : this.guiParent,
+		style : "sprite",
+		x : this.params['x'],
+		y : this.params['y'],
+		width : this.description['width'],
+		height : this.description['height'],
+		totalImage : totalImage,
+		totalImageWidth : this.description['totalImageWidth'],
+		totalImageHeight : this.description['totalImageHeight'],
+		totalTile : this.description['totalTile'],
+		"spriteAnimations" : {
+			"idle" : {
+				"frames" : [ 1, 1, 2, 2, 1 ],
+				"row" : 0
+			},
+			"walk" : {
+				"frames" : [ 4, 5, 6, 7, 8, 9, 10, 11 ],
+				"row" : 0,
+				"frameDuration" : 100
+			}
+		}
+	});
+
+	var visualInfo = {};
+	visualInfo.visual = visual;
+	visualInfo.z = this.description['z-index'];
+	visualInfo.offsetX = this.description['centerX'] ? calcPercentage(
+			this.description['centerX'], this.description['width']) : 0;
+	visualInfo.offsetY = this.description['centerY'] ? calcPercentage(
+			this.description['centerY'], this.description['height']) : 0;
+
+	this.addVisual(null, visualInfo);
+	this.setPosition(this.x, this.y);
+	this.startX = this.x;
+	this.startY = this.y;
+	this.setZ(null);
+	visual.playAnimation("idle", 5, true);
+};
+
+BasicCharacter.prototype.update = function(updateTime) {
+	if (this.flagMove == true) {
+		if ((Math.abs(this.clickPosition.x - this.x) > 4)
+				|| (Math.abs(this.clickPosition.y - this.y) > 4)) {
+			this.x += this.speed * (updateTime / 1000) * this.normX;
+			this.y += this.speed * (updateTime / 1000) * this.normY;
+			this.setPosition(this.x, this.y);
+		} else {
+			this.startX = this.x;
+			this.startY = this.y;
+			this.stop();
+		}
+	} else {
+		this.startX = this.x;
+		this.startY = this.y;
+	}
+	this.getVisual().update();
+};
+
+
+BasicCharacter.prototype.move = function() {
+	this.flagMove = true;
+	this.getVisual().stopAnimation();
+	this.normX = (this.clickPosition.x - this.startX)
+			/ Math.sqrt(Math.pow((this.clickPosition.x - this.startX), 2)
+					+ Math.pow((this.clickPosition.y - this.startY), 2));
+	this.normY = (this.clickPosition.y - this.startY)
+			/ Math.sqrt(Math.pow((this.clickPosition.x - this.startX), 2)
+					+ Math.pow((this.clickPosition.y - this.startY), 2));
+	if(this.normX < 0){
+		this.getVisual().flip(true);
+	}else{
+		this.getVisual().flip(false);
+	}
+	this.getVisual().playAnimation("walk", null, true);
+};
+BasicCharacter.prototype.stop = function() {
+	this.flagMove = false;
+	this.getVisual().stopAnimation();
+	this.getVisual().playAnimation("idle", 5, true);
+};
+/**
+ * Room is scene for furniture and characters
+ */
+
+var FLOOR_LEVEL = 352;
+
+BasicScene.prototype = new Scene();
+BasicScene.prototype.constructor = BasicScene;
+
+/**
+ * @constructor
+ */
+function BasicScene() {
+	BasicScene.parent.constructor.call(this);
+};
+
+BasicScene.inheritsFrom(Scene);
+
+BasicScene.prototype.className = "BasicScene";
+BasicScene.prototype.createInstance = function(params) {
+	var entity = new BasicScene();
+	entity.init(params);
+	return entity;
+};
+
+entityFactory.addClass(BasicScene);
+
+BasicScene.prototype.init = function(params) {
+	BasicScene.parent.init.call(this, params);
+};
+
+BasicScene.prototype.addChild = function(child) {
+	BasicScene.parent.addChild.call(this, child);
+};
+
+BasicScene.prototype.createVisual = function() {
+	BasicScene.parent.createVisual.call(this);
+	var visual = this.getVisual();
+	visual.clampByParentViewport();
+
+	var descriptionWall = Account.instance.descriptionsData[this.params['wall']];
+	var descriptionFloor = Account.instance.descriptionsData[this.params['floor']];
+	visual.setBackground("images/" + descriptionWall['image'],
+			descriptionWall['width'], descriptionWall['height'], 0, -70,
+			"repeat-x", 0);
+	visual.setBackground("images/" + descriptionFloor['image'],
+			descriptionFloor['width'], descriptionFloor['height'], 0,
+			FLOOR_LEVEL, "repeat-x", 1);
+	this.parent.resize();
+
+	var that = this;
+	$(document)['bind'](Device.event("cursorUp"), function(e) {
+		that.monkey = Account.instance.getEntity("basicCharacter01");
+		if(that.monkey.flagMove == false){
+			that.monkey.clickPosition = that.getVisual().getEventPosition(e);
+			that.monkey.move();
+		}else{
+			that.monkey.stop();
+		}
+	});
+
+};
+
+BasicScene.prototype.attachChildVisual = function(child) {
+	BasicScene.parent.attachChildVisual.call(this, child);
+	var that = this;
+	// adding items to the scene
+	if (child instanceof Item) {
+		var item = child;
+		this.initItem(item);
+	} else if (child instanceof Actor) {
+		child.getVisual().clampByParentViewport();
+	}
+};
+
+BasicScene.prototype.initItem = function(item) {
+	var that = this;
+	var visual = item.getVisual();
+	visual.clampByParentViewport();
+	visual.roomParent = that.getVisual();
+	// dragable
+	// visual.setDragable(false);
+	visual.onDragBegin = function() {
+		visual.oldPosition = {
+			x : visual.x,
+			y : visual.y
+		};
+
+		visual.clampByParentViewport(false);
+		visual.setRealBackgroundPosition(0, 0);
+		visual.setParent("#root", true);
+		visual.setZ(9999);
+
+	};
+	visual.onDragEnd = function(dragListener) {
+		if (!dragListener) {
+			if (visual.onDragEndNoListener) {
+				visual.onDragEndNoListener();
+			} else {
+				console.log("no drag listener");
+				// return to old position if listener is not correct
+				visual.setPosition(visual.oldPosition.x, visual.oldPosition.y);
+				visual.setParent(visual.roomParent);
+			}
+
+		} else {
+			visual.setParent(visual.roomParent, true);
+		}
+
+		visual.clampByParentViewport();
+
+		// restore Z index
+		visual.visualEntity.setZ(null);
+	};
+};
+
+BasicScene.prototype.destroy = function() {
+	BasicScene.parent.destroy.call(this);
+	$(document)['off']();
+};
+/*
+ * Game state is a application state where all the game logic is happens
+ */
 
 GameState.prototype = new BaseState();
 GameState.prototype.constructor = GameState;
@@ -7122,8 +7438,8 @@ GameState.prototype.jsonPreloadComplete = function() {
 GameState.prototype.init = function(params) {
 	GameState.parent.init.call(this, params);
 	Account.instance.backgroundState.fadeOut(LEVEL_FADE_TIME, function() {
-		
 	});
+	
 	guiFactory.createGuiFromJson(this.resources.json[GAME_STATE_UI_FILE], this);
 	var that = this;
 
@@ -7131,17 +7447,16 @@ GameState.prototype.init = function(params) {
 	playButton.bind(function(e) {
 		Account.instance.switchState("MenuState01", that.id, that.parent.id);
 	});
-
-	Loader['hideLoadingMessage']();
-	$(window)['trigger']("resize");
-	// loadGame();
 	
-	//this.resize();
-	console.log("game scene",this.getGui("enhancedScene"));
+	this.scene = Account.instance.getEntity(params['scene']);
+	this.scene.attachToGui(this.getGui("mainScene"));
+	
 };
 GameState.prototype.resize = function() {
+	
 	GameState.parent.resize.call(this);
-};/**
+};
+/**
  * Main.js
  */
 
@@ -7190,7 +7505,9 @@ $(document).ready(function() {
 
 });
 /**
- * 
+ * BasicAccount is derived from Account. Accounts handle all system information,
+ * perform serialization and networking. All entities are childrens of account.
+ * Account.instance - is a singletone for account.
  */
 
 BasicAccount.prototype = new Account();
@@ -7222,16 +7539,39 @@ BasicAccount.prototype.init = function() {
 	}
 };
 
+	// Description of states
 this.states["GameState01"] = {
 	"GameState01" : {
 		"class" : "GameState",
-		"parent" : "Account01"
+		"parent" : "Account01",
+		"scene" : "Scene01",
+		"children": {
+		}
+	},
+	"Scene01" : {
+		"class" : "BasicScene",
+		"parent" : "GameState01",
+		"wall" : "WallRoomRich00",
+		"floor" : "FloorBathBeginner01",
+		"x" : 0,
+		"y" : 0,
+		"width" : 800,
+		"height" : 500
+	},
+	"basicCharacter01" : {
+		"class" : "BasicCharacter",
+		"parent" : "Scene01",
+		"description" : "monkey",
+		"x" : 300,
+		"y" : 352
 	}
 };
 	
 	Account.instance = this;
 };
 
+//SwitchState perform fading in, and  swithching state,
+//which mean changing entities from one account to another.
 BasicAccount.prototype.switchState = function(stateName, id,
 		parentId) {
 	var that = this;

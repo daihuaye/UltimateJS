@@ -65,7 +65,9 @@ Account.prototype.removeEntity = function(id, dontDestroy) {
 			this.removeChild(entity);
 			entity.destroy();
 		}
-		delete allEntities[id];
+
+		delete this.allEntities[id];
+
 	}
 };
 
@@ -82,22 +84,24 @@ Account.prototype.removeAllEntities = function(id, dontDestroy) {
  */
 Account.prototype.addScheduledEntity = function(newEntity) {
 	assert(typeof (newEntity.id) == "string", "Entity ID must be string");
-
+	var that = this;
+	var dt = this.globalUpdateInterval;
 	// if adding first object to scheduling queue start update interval
 	if (!this.globalUpdateIntervalHandle) {
-		this.globalUpdateIntervalHandle = this.setInterval(this.update,
-				this.globalUpdateInterval);
+		this.globalUpdateIntervalHandle = this.setInterval(function() {
+			that.update(dt);
+		}, dt);
 	}
 	this.scheduledEntities[newEntity.id] = newEntity;
 };
 
 Account.prototype.removeScheduledEntity = function(entity) {
 	assert(typeof (entity.id) == "string", "Entity ID must be string");
-	delete this.scheduledEntities[id];
+	delete this.scheduledEntities[entity.id];
 	// if nothing to schedule anymore stop interval either
 	if (!this.globalUpdateIntervalHandle
 			&& $['isEmptyObject'](this.scheduledEntities)) {
-		this.clearInteval(this.globalUpdateIntervalHandle);
+		this.clearInterval(this.globalUpdateIntervalHandle);
 		this.globalUpdateIntervalHandle = null;
 	}
 };
@@ -109,6 +113,9 @@ Account.prototype.update = function(dt) {
 			entity.update(dt);
 		}
 	});
+};
+Account.prototype.setEnable = function(isTrue) {
+	
 };
 
 /*
@@ -281,7 +288,8 @@ Account.prototype.showDialog = function(dialog) {
 };
 
 
-
+/*
+ * NETWORKING FUNCTIONS dealing with external server
 /*
  *  NETWORKING FUNCTIONS
  *  dealing with external server
@@ -365,7 +373,6 @@ Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 	if (syncInterval != null) {
 		this.clearTimeout(this.syncWithServerTimeoutId);
 		var that = this;
-		//console.log("SHEDULE");
 		this.syncWithServerTimeoutId = this.setTimeout(function() {
 			that.syncWithServer();
 		}, 5000);
