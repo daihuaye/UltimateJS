@@ -84,7 +84,6 @@ BaseState.prototype.preload = function() {
 };
 
 BaseState.prototype.jsonPreloadComplete = function() {
-	console.log("OPPOPOPOPO",this);
 	var that = this;
 	if (this.resources.media) {
 		var startTime = new Date();

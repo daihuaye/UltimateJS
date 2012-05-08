@@ -100,8 +100,6 @@ div {
 .scene {
 	position: absolute;
 	display: block;
-	border: solid;
-	border-color: green;
 	z-index: 6;
 }
 

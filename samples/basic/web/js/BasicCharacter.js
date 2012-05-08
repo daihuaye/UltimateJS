@@ -1,3 +1,8 @@
+/*
+ * Character incapsulates animated sprite
+ * into the entity 
+ */
+
 var SPEED_MOVE = 100;
 BasicCharacter.prototype = new VisualEntity();
 BasicCharacter.prototype.constructor = BasicCharacter;
@@ -89,6 +94,11 @@ BasicCharacter.prototype.createVisual = function() {
 };
 
 BasicCharacter.prototype.update = function(updateTime) {
+	var visual = this.getVisual();
+	if(!visual) {
+		return;
+	}
+	
 	if (this.flagMove == true) {
 		if ((Math.abs(this.clickPosition.x - this.x) > 4)
 				|| (Math.abs(this.clickPosition.y - this.y) > 4)) {
@@ -96,6 +106,7 @@ BasicCharacter.prototype.update = function(updateTime) {
 			this.y += this.speed * (updateTime / 1000) * this.normY;
 			this.setPosition(this.x, this.y);
 		} else {
+			Sound.play("final");
 			this.startX = this.x;
 			this.startY = this.y;
 			this.stop();
@@ -104,26 +115,28 @@ BasicCharacter.prototype.update = function(updateTime) {
 		this.startX = this.x;
 		this.startY = this.y;
 	}
-	this.getVisual().update();
+	visual.update();
 };
-
 
 BasicCharacter.prototype.move = function() {
 	this.flagMove = true;
 	this.getVisual().stopAnimation();
-	this.normX = (this.clickPosition.x - this.startX)
-			/ Math.sqrt(Math.pow((this.clickPosition.x - this.startX), 2)
-					+ Math.pow((this.clickPosition.y - this.startY), 2));
-	this.normY = (this.clickPosition.y - this.startY)
-			/ Math.sqrt(Math.pow((this.clickPosition.x - this.startX), 2)
-					+ Math.pow((this.clickPosition.y - this.startY), 2));
-	if(this.normX < 0){
+
+	var dx = this.clickPosition.x - this.startX;
+	var dy = this.clickPosition.y - this.startY;
+	this.normX = dx / Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+	this.normY = dy / Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+
+	if (this.normX < 0) {
 		this.getVisual().flip(true);
-	}else{
+	} else {
 		this.getVisual().flip(false);
 	}
+	
+	Sound.play("monkey");
 	this.getVisual().playAnimation("walk", null, true);
 };
+
 BasicCharacter.prototype.stop = function() {
 	this.flagMove = false;
 	this.getVisual().stopAnimation();

@@ -1,7 +1,7 @@
 .default-bold {
-	color: #990000;
-	font-style: italic;
-	font-size: 30px;
+	color: #00000;
+	font-style: bold;
+	font-size: 35px;
 }
 
 
@@ -20,20 +20,20 @@
 .pusab-blue {
 	font-family: PusabRegular;
 	color: #01B5FE;
-	-webkit-text-stroke: 1px #0032E7;
-	text-shadow: 2px 2px 0 #0032E7;
+	-webkit-text-stroke: 1px #000000;
+	text-shadow: 2px 2px 0 #000000;
 }
 
 .pusab-yellow {
 	font-family: PusabRegular;
 	color: #FFCA30;
-	-webkit-text-stroke: 1px #C07830;
-	text-shadow: 2px 2px 0 #C07830;
+	-webkit-text-stroke: 1px #000000;
+	text-shadow: 2px 2px 0 #000000;
 }
 
 .pusab-white {
 	font-family: PusabRegular;
 	color: white;
-	-webkit-text-stroke: 1px #CD00FF;
-	text-shadow: 2px 2px 0 #CD00FF;
+	-webkit-text-stroke: 1px #000000;
+	text-shadow: 2px 2px 0 #000000;
 }

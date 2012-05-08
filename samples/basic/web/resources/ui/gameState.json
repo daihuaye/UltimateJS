@@ -15,6 +15,22 @@
 			"innerScene" : true
 		}
 	},
+	"signLabel": {
+		"class" : "GuiLabel",
+		"params" : {
+			"parent" : "mainScene",
+			"style" : "dialogButton pusab-white",
+			"width" : 500,
+			"height" : 58,
+			"x" : "50%",
+			"y" : 10,
+			"offsetX" : -250,
+			"text" : "Tap anywhere and monkey will walk there!",
+			"fontSize" : 30,
+			"align" : "center", 
+			"verticalAlign" : "middle"
+		}
+	}, 	
 	"backToMenu": {
 		"class" : "GuiButton",
 		"params" : {
@@ -23,7 +39,7 @@
 				"image" : "button.png",
 				"label" : {
 					"style" : "gameButton pusab-white",
-					"text" : "Back To Menu",
+					"text" : "Menu",
 					"fontSize" : 36,
 					"scale" : 100
 				}
@@ -38,12 +54,12 @@
 				"label" : {}
 			},
 			"style" : "gameButton",
-			"width" : 100,
-			"height" : 100,
+			"width" : 120,
+			"height" : 66,
 			"x" : "100%",
 			"y" : "100%",
-			"offsetX" : -150,
-			"offsetY" : -150
+			"offsetX" : -130,
+			"offsetY" : -80
 		}
 	}
 }

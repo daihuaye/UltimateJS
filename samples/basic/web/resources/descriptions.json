@@ -1,95 +1,21 @@
 {
-"monkey": {
-        "name" : "Padding",
-        "totalImage" : "monkey.png",
+	"monkey" : {
+		"totalImage" : "monkey.png",
 		"totalImageWidth" : 1620,
 		"totalImageHeight" : 172,
 		"width" : 135,
 		"centerX" : "50%",
-        "centerY" : "80%",
-        "height" : 172,
-		"totalTile" : { 
-			"x" : 12, 
+		"centerY" : "80%",
+		"height" : 172,
+		"totalTile" : {
+			"x" : 12,
 			"y" : 0
 		}
-    },
-"basicItem": {
-        "name" : "basicItem",
-        "totalImage" : "DecorDoorBellBase00.png",
-        "width" : 36,
-        "height" : 45,
-		"totalImageWidth" : 36,
-		"totalImageHeight" : 45,
-		"totalTile" : 1,
-        "z-index" : 4,
-        "centerX" : "0%",
-        "centerY" : "0%"
-    },
-    "FloorBathBeginner01" : {
-                "name" : "FloorBathBeginner01",
-                "type" : "floor",
-                "image" : "FloorBathBeginner01.png",
-                "totalImage" : "IconFloorBathBeginner01.png",
-                "width" : 269,
-                "height" : 219,
-                "iconImage" : "IconFloorBathBeginner01.png",
-                "totalImageWidth" : 168,
-                "totalImageHeight" : 168,
-                "totalTile" : 1,
-        "z-index" : 10,
-        "centerX" : "50%",
-        "centerY" : "100%",
-        "floorOffset" : 40
-        },
-        "WallRoomRich00" : {
-        		"iconImage" : "IconWallRoomRich00.png",
-                "name" : "WallRoomRich00",
-                "type" : "wall",
-                "image" : "WallRoomRich00.png",
-                "totalImage" : "IconWallRoomRich00.png",
-                "width" : 107,
-                "height" : 421,
-                "totalImageWidth" : 111,
-		"totalImageHeight" : 110,
-                "totalTile" : 1,
-        "z-index" : 10,
-        "centerX" : "50%",
-        "centerY" : "100%",
-        "floorOffset" : 40
-        },
-	"countdown": {
-        "name" : "Countdown",
-        "sprite" : {
-     	   "totalImage" : "timer.png",
-        	"width" : 141,
-        	"height" : 141,
-			"totalImageWidth" : 1974,
-			"totalImageHeight" : 141,
-			"spriteAnimations" : {
-				"countdown" : {
-					"frames" : [ 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
-					"row" : 0
-				},
-				"empty" : {
-					"frames" : [ 13 ],
-					"row" : 0
-				}
-			},
-			"totalTile" : 1
-		},
-		"ladbel" : {
-			"class" : "GuiLabel",
-			"params" : {
-				"style" : "dialogButton segoe-chalk",
-				"width" : 141,
-				"height" : 141,
-				"fontSize" : 36,
-				"color" : "#FFFFFF"
-			}
-		},
-		"go" : "",
-		"fontSize" : 0,
-		"tickSound" : "beepShort" ,
-		"paused" : true
-    }
+	},
+
+	"basicTextureTile" : {
+		"image" : "tile.png",
+		"width" : 269,
+		"height" : 219
+	}
 }

@@ -72,7 +72,7 @@
 				<file name="BasicScene.js" />
 				<file name="GameState.js" />
 				<file name="main.js" />
-				<file name="basicAccount.js" />
+				<file name="BasicAccount.js" />
 			</filelist>
 		</concat>
 		<concat destfile="${dir.scripts-compiled}/thirdParty.js">

@@ -1,8 +1,6 @@
 /**
- * Room is scene for furniture and characters
+ * Scene is a place to put all sprites in
  */
-
-var FLOOR_LEVEL = 352;
 
 BasicScene.prototype = new Scene();
 BasicScene.prototype.constructor = BasicScene;
@@ -36,85 +34,38 @@ BasicScene.prototype.addChild = function(child) {
 BasicScene.prototype.createVisual = function() {
 	BasicScene.parent.createVisual.call(this);
 	var visual = this.getVisual();
-	visual.clampByParentViewport();
-
-	var descriptionWall = Account.instance.descriptionsData[this.params['wall']];
-	var descriptionFloor = Account.instance.descriptionsData[this.params['floor']];
-	visual.setBackground("images/" + descriptionWall['image'],
-			descriptionWall['width'], descriptionWall['height'], 0, -70,
-			"repeat-x", 0);
-	visual.setBackground("images/" + descriptionFloor['image'],
-			descriptionFloor['width'], descriptionFloor['height'], 0,
-			FLOOR_LEVEL, "repeat-x", 1);
+	var descriptionTile = Account.instance.descriptionsData[this.params['tile']];
+	visual.setBackground(Resources.getImage(descriptionTile['image']),
+			descriptionTile['width'], descriptionTile['height'], 0, 0,
+			"repeat", 0);
 	this.parent.resize();
 
+	// Binding touchUp and mouseUp to handle character movement
 	var that = this;
-	$(document)['bind'](Device.event("cursorUp"), function(e) {
+	var lastEvent = null;
+	visual.jObject['bind'](Device.event("cursorDown"), function(e) {
+		lastEvent = e;
+	});
+	visual.jObject['bind'](Device.event("cursorMove"), function(e) {
+		lastEvent = e;
+	});
+	visual.jObject['bind'](Device.event("cursorUp"), function() {
+		if(!lastEvent) {
+			return;
+		}
+		var e = lastEvent;
 		that.monkey = Account.instance.getEntity("basicCharacter01");
-		if(that.monkey.flagMove == false){
+		if (that.monkey.flagMove == false) {
 			that.monkey.clickPosition = that.getVisual().getEventPosition(e);
 			that.monkey.move();
-		}else{
+		} else {
 			that.monkey.stop();
 		}
 	});
 
 };
 
-BasicScene.prototype.attachChildVisual = function(child) {
-	BasicScene.parent.attachChildVisual.call(this, child);
-	var that = this;
-	// adding items to the scene
-	if (child instanceof Item) {
-		var item = child;
-		this.initItem(item);
-	} else if (child instanceof Actor) {
-		child.getVisual().clampByParentViewport();
-	}
-};
-
-BasicScene.prototype.initItem = function(item) {
-	var that = this;
-	var visual = item.getVisual();
-	visual.clampByParentViewport();
-	visual.roomParent = that.getVisual();
-	// dragable
-	// visual.setDragable(false);
-	visual.onDragBegin = function() {
-		visual.oldPosition = {
-			x : visual.x,
-			y : visual.y
-		};
-
-		visual.clampByParentViewport(false);
-		visual.setRealBackgroundPosition(0, 0);
-		visual.setParent("#root", true);
-		visual.setZ(9999);
-
-	};
-	visual.onDragEnd = function(dragListener) {
-		if (!dragListener) {
-			if (visual.onDragEndNoListener) {
-				visual.onDragEndNoListener();
-			} else {
-				console.log("no drag listener");
-				// return to old position if listener is not correct
-				visual.setPosition(visual.oldPosition.x, visual.oldPosition.y);
-				visual.setParent(visual.roomParent);
-			}
-
-		} else {
-			visual.setParent(visual.roomParent, true);
-		}
-
-		visual.clampByParentViewport();
-
-		// restore Z index
-		visual.visualEntity.setZ(null);
-	};
-};
-
+// do cleanup here
 BasicScene.prototype.destroy = function() {
 	BasicScene.parent.destroy.call(this);
-	$(document)['off']();
 };
