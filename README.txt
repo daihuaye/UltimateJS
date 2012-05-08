@@ -25,7 +25,7 @@ Compiled download version:
 http://www.logicking.com/UltimateJS/downloads/BasicSampleDemo.zip
 
 
-BasicSample demo should be complied via Ant Build and tested from the browaer
+BasicSample demo should be complied via Ant Build and tested from web browser
 on your local HTTP server (for example EasyPHP).
 
 
