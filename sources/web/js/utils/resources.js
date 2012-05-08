@@ -118,7 +118,7 @@ var Resources = (function() {
 			// looking for images in current resolution
 			for(var i in resolutions[defaultResolution].images[i]) {
 				if(resolutions[currentResolution].images[i]) {
-					images.push(Resources.getImage(i))
+					images.push(Resources.getImage(i));
 				}
 			}
 			return images;
@@ -135,7 +135,7 @@ var Resources = (function() {
 			}
 		},
 		
-		//temporary borrowed from Crafty game engine
+		//temporary borrowed from CraftyJS game engine
 		//TODO rewrite
 		loadMedia : function(data, oncomplete, onprogress, onerror) {
 			var i = 0, l = data.length, current, obj, total = l, j = 0, ext;

@@ -1,21 +1,33 @@
-ULTIMATE JS LICENSE (early adopters edition, valid till May 14, 2012)
+ULTIMATE JS LICENSE (early adopters edition)
 
 1.General Overview
 
-UltimateJS is professional all-in-one HTML5 cross-platform solution with particular focus on mobile web game development.
+UltimateJS is professional all-in-one HTML5 cross-platform solution 
+with particular focus on mobile web game development.
 
-With UltimateJS you can create any type of games and applications except for development tools, game engines, libraries, SDKs and other types of products, which compete with UltimateJS. 
+With UltimateJS you can create any type of games and applications EXCEPT for development tools, 
+game engines, libraries, SDKs and other types of products, which compete with UltimateJS itself.
 
 2. Licensing
 
 2.1 Non-Commercial Use
-UltimateJS is free for non-commercial use. Game and applications made with non-commercial license should credit usage of UltimateJS.
+UltimateJS is free for non-commercial use. 
+Games and applications made with non-commercial license should explicitly credit 
+the usage of UltimateJS.
 
 2.2 Indie Commercial License
 
-Indie Commercial License is granted per individual developer and allows you to create, sell, license and distribute unlimited number of applications made with current major version of UltimateJS. Minor updates and bug fixes are free while update for next major version if provided for additional fee.
+Indie Commercial License is granted per individual developer and allows you to create, 
+sell, license and distribute unlimited number of applications made with current major version of UltimateJS. 
+Minor updates and bug fixes are free while license updates for the new major versions may require additional fee.
 
 2.3 Early Adopters License
 
-Early Adopters - users that apply for using the engine before the May 14, 2012 are automatically granted Indie Commercial License for current 0.x version.
-And 50% discount for purchase of upcoming 1.x version (https://usd.swreg.org/com/storefront/3216/product/3216-ujs_1x_ea)
+Users that apply for using the engine before the June 1, 2012 are automatically granted 
+Indie Commercial License for current 0.x version and 50% discount for pre-order of upcoming 
+1.x version. Discount will be available till June 1, 2012 as well.
+
+LINK TO EARLY ADOPTERS 1.x DISCOUNT PURCHASE:
+https://usd.swreg.org/com/storefront/3216/product/3216-ujs_1x_ea
+
+For any questions please email to logicking@logicking.com

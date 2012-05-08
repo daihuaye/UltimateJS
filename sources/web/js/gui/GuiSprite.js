@@ -25,7 +25,7 @@ guiFactory.addClass(GuiSprite);
 
 GuiSprite.prototype.initialize = function(params) {
 	GuiSprite.parent.initialize.call(this, params);
-	
+
 	this.clampByViewport = this.clampByViewportSimple;
 
 	this.totalWidth = params['totalImageWidth'];
@@ -110,7 +110,7 @@ GuiSprite.prototype.updateAnimation = function() {
 			return;
 		}
 	}
-
+	
 	// console.log("Frames " + this.currentFrame);
 	var rowFramesLength = Math.round(this.totalWidth / this.width);
 	var frame = this.animations[this.currentAnimation].frames[this.currentFrame];
@@ -130,6 +130,7 @@ GuiSprite.prototype.updateAnimation = function() {
 	this.setRealBackgroundPosition();
 
 	this.currentFrame++;
+	
 
 };
 
@@ -174,6 +175,7 @@ GuiSprite.prototype.playAnimation = function(animationName, duration, isLooped,
 	this.currentFrameTime = 0;
 	this.lastUpdateTime = (new Date()).getTime();
 
+	//console.log(this.animations[this.currentAnimation].frameDuration);
 	if (duration) {
 		this.currentFrameLength = duration / animation.frames.length;
 		// console.log("frame lenght " + this.currentFrameLength + ", " +
@@ -216,7 +218,6 @@ GuiSprite.prototype.animate = function(moveVector, duration) {
 
 GuiSprite.prototype.flip = function(needToBeFlipped) {
 	this.flipped = needToBeFlipped;
-	this.scale = this.flipped ? -1 : 1;
 	this.transform();
 };
 
@@ -232,19 +233,11 @@ GuiSprite.prototype.transform = function(transfromations) {
 			this.translate = transfromations.translate;
 	}
 
-	if (Device.nativeRender()) {
-		var scale = this.scale == undefined ? 1 : this.scale;
-		var scaleX = scale * Screen.widthRatio();
-		var scaleY = scale * Screen.heightRatio();
-		var translateX = (this.x + this.width / 2) * Screen.widthRatio();
-		var translateY = (this.y + this.height / 2) * Screen.heightRatio();
-		assert(this.nativeRenderImageId !== undefined,
-				"nativeRenderImageId not set");
-		Device.nativeRender().updateImage(this.nativeRenderImageId, translateX,
-				translateY, scaleX, scaleY, this.angle);
-	} else
-		cssTransform(this.jObject, this.matrix, this.angle, this.scale,
-				this.scale, this.translate);
+	var scaleY = selectValue(this.scale, 1);
+	var scaleX = scaleY;
+	scaleX *= (this.flipped ? -1 : 1);
+	cssTransform(this.jObject, this.matrix, this.angle, scaleX, scaleY,
+			this.translate);
 };
 
 GuiSprite.prototype.rotate = function(angle) {
