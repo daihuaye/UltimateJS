@@ -3,7 +3,7 @@ UltimateJS version 0.1 - FOR EARLY ADOPTERS (May 03, 2012)
 Find more information:
 project wiki: www.ultimatejs.com
 project homepage: www.logicking.com/index.php?page=html5
-game made with UltimateJS so far: www.logicking.com/games.php?platforms=html5
+games made with UltimateJS so far: www.logicking.com/games.php?platforms=html5
 
 
 -------------------------------------------------------
