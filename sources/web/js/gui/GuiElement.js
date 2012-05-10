@@ -475,9 +475,7 @@ GuiElement.prototype.setParent = function(newParent, saveGlobalPosition) {
 	if (parent) {
 		var oldParent = this.parent;
 		this.parent = parent;
-		if (this.jObject) {
-			this.jObject['appendTo'](parent.jObject);
-		}
+		
 
 		// recalculate entity x,y so it will
 		// stay at the same place on the screen after the parent change
@@ -490,6 +488,11 @@ GuiElement.prototype.setParent = function(newParent, saveGlobalPosition) {
 			var left = oldParentPos.x - newParentPos.x;
 			var top = oldParentPos.y - newParentPos.y;
 			this.move(left, top);
+		}
+		
+		
+		if (this.jObject) {
+			this.jObject['appendTo'](parent.jObject);
 		}
 		return true;
 	} else {

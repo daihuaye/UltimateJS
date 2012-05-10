@@ -118,34 +118,9 @@ Account.prototype.setEnable = function(isTrue) {
 	
 };
 
-/*
- * Serialization for the network or local data
- */
-Account.prototype.readUpdate = function(params) {
-	this.money = params['money'];
-	this.premiumMoney = params['premiumMoney'];
-	this.energy = params['energy'];
-	if (this.energy <= 0) {
-		this.energy = 0;
-	}
-	this.happyness = params['happyness'];
-	this.experience = params['experience'];
-};
 
-Account.prototype.writeUpdate = function(globalData, entityData) {
-	// entityData['money'] = this.money;
-	this.writeUpdateProperty(entityData, "money", this.money);
-	// entityData['premiumMoney'] = this.premiumMoney;
-	this.writeUpdateProperty(entityData, "premiuMoney", this.premiumMoney);
-	// entityData['energy'] = this.energy;
-	this.writeUpdateProperty(entityData, "energy", this.energy);
-	// entityData['happyness'] = this.happyness;
-	this.writeUpdateProperty(entityData, "happyness", this.happyness);
-	// entityData['experience'] = this.experience;
-	this.writeUpdateProperty(entityData, "experience", this.experience);
-	this.serverCommands = null;
-	Account.parent.writeUpdate.call(this, globalData, entityData);
-};
+
+
 
 // called from outside, to notify entities about
 // screen resize
@@ -162,130 +137,8 @@ Account.prototype.resize = function() {
 		this.backgroundState.resize();
 	}
 };
-Account.prototype.getMoney = function() {
-	return this.money;
-};
-Account.prototype.setMoney = function(money) {
-	this.money = money;
-};
-Account.prototype.getPremiumMoney = function() {
-	return this.premiumMoney;
-};
-Account.prototype.setPremiumMoney = function(money) {
-	this.premiumMoney = money;
-};
 
-Account.prototype.showDialog = function(dialog) {
-	var count = 1;
-	this.backgroundState.dialogs["buy"].labels[1].change(count);
-	var returnValue = null;
-	var that = this;
-	if (dialog.type == "settings") {
-		if (Sound.isOn()) {
-			that.backgroundState.dialogs[dialog.type].buttons["unsound"].hide();
-			that.backgroundState.dialogs[dialog.type].buttons["sound"].show();
-		} else {
-			that.backgroundState.dialogs[dialog.type].buttons["sound"].hide();
-			that.backgroundState.dialogs[dialog.type].buttons["unsound"].show();
-		}
-	}
-	if (dialog.price) {
-		this.backgroundState.dialogs[dialog.type].labels[2].change(""
-				+ (dialog.price));
-	}
-	if (dialog.text) {
-		this.backgroundState.dialogs[dialog.type].labels[0].change(dialog.text);
-	}
-	if (dialog.icons) {
-		$['each']
-				(
-						dialog.icons,
-						function(index, value) {
-							if ((value.width) && (value.height)) {
-								that.backgroundState.dialogs[dialog.type].icons[index]
-										.setSize(value['width'],
-												value['height']);
-								that.backgroundState.dialogs[dialog.type].icons[index]
-										.setPosition(that.backgroundState.dialogs[dialog.type].width
-												/ 2 - value['width'] / 2);
-								that.backgroundState.dialogs[dialog.type].icons[index]
-										.resize();
-							}
-							that.backgroundState.dialogs[dialog.type].icons[index]
-									.setBackground(value['background']['image']);
-						});
-	}
-	if (dialog.callbacks) {
-		$['each']
-				(
-						dialog.callbacks,
-						function(index, value) {
-							if (index == "plus") {
-								that.backgroundState.dialogs[dialog.type].buttons[index]
-										.bind(function() {
-											if (count < dialog.max) {
-												count++;
-												that.backgroundState.dialogs[dialog.type].labels[1]
-														.change("" + (count));
-												that.backgroundState.dialogs[dialog.type].labels[2]
-														.change(""
-																+ (count * dialog.price));
-												dialog.result = count;
-												value(dialog);
-											}
-										});
-							} else {
-								if (index == "unsound") {
-									that.backgroundState.dialogs[dialog.type].buttons[index]
-											.bind(function() {
-												this.hide();
-												that.backgroundState.dialogs[dialog.type].buttons["sound"]
-														.show();
-												value(dialog);
-											});
-								} else {
-									if (index == "sound") {
-										that.backgroundState.dialogs[dialog.type].buttons[index]
-												.bind(function() {
-													this.hide();
-													that.backgroundState.dialogs[dialog.type].buttons["unsound"]
-															.show();
-													value(dialog);
-												});
-									} else {
-										if (index == "minus") {
-											that.backgroundState.dialogs[dialog.type].buttons[index]
-													.bind(function() {
-														count--;
-														if (count <= 1) {
-															count = 1;
-														}
-														that.backgroundState.dialogs[dialog.type].labels[1]
-																.change(""
-																		+ (count));
-														that.backgroundState.dialogs[dialog.type].labels[2]
-																.change(""
-																		+ (count * dialog.price));
-														dialog.result = count;
-														value(dialog);
-													});
-										} else {
-											that.backgroundState.dialogs[dialog.type].buttons[index]
-													.bind(function() {
-														dialog.result = count;
-														value(dialog);
-														that.backgroundState.dialogs[dialog.type]
-																.hide();
-													});
-										}
-									}
-								}
-							}
-						});
-	}
-	this.backgroundState.dialogs[dialog.type].show();
-	dialog.result = returnValue;
-};
+
 
 
 /*
@@ -378,3 +231,5 @@ Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 		}, 5000);
 	}
 };
+
+

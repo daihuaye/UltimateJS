@@ -85,11 +85,6 @@ GuiProgressBar.prototype.setNewValue = function(what, newValue) {
 	// this.resize();
 };
 
-GuiProgressBar.prototype.update = function(){
-//	this.setNewValue("current", Account.instance.energy);
-	console.log(Account.instance.energy);
-	GuiProgressBar.parent.readUpdate.call(this,data);
-};
 
 GuiProgressBar.prototype.resize = function() {
 	GuiProgressBar.parent.resize.call(this);
