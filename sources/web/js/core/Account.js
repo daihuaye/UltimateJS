@@ -115,12 +115,8 @@ Account.prototype.update = function(dt) {
 	});
 };
 Account.prototype.setEnable = function(isTrue) {
-	
+
 };
-
-
-
-
 
 // called from outside, to notify entities about
 // screen resize
@@ -138,14 +134,9 @@ Account.prototype.resize = function() {
 	}
 };
 
-
-
-
 /*
- * NETWORKING FUNCTIONS dealing with external server
-/*
- *  NETWORKING FUNCTIONS
- *  dealing with external server
+ * NETWORKING FUNCTIONS dealing with external server /* NETWORKING FUNCTIONS
+ * dealing with external server
  */
 // Creates/Updates/Destroy all active entities
 Account.prototype.readGlobalUpdate = function(data) {
@@ -210,7 +201,11 @@ Account.prototype.commandToServer = function(name, args, callback) {
 };
 
 // make sure client and server are synchronized at the moment
+//var acc = 0;
 Account.prototype.syncWithServer = function(callback, data, syncInterval) {
+	// console.log("startShedule#",acc++);
+	// var d = new Date();
+	// var g = d.getTime();
 	var writeData = this.writeGlobalUpdate();
 	if (data) {
 		$['extend'](true, writeData, data);
@@ -229,7 +224,6 @@ Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 		this.syncWithServerTimeoutId = this.setTimeout(function() {
 			that.syncWithServer();
 		}, 5000);
+		// console.log("sheduleStoped"+(acc-1),((new Date()).getTime() - g));
 	}
 };
-
-

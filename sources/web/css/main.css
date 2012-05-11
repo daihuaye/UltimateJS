@@ -18,7 +18,6 @@ div {
     -khtml-user-select: none;
     -webkit-user-select: none;
     /*3D transform */
-    -webkit-transform: scale3d(1, 1, 1);
     -o-user-select: none;
     user-select: none;
 }
@@ -101,12 +100,14 @@ div {
 	position: absolute;
 	display: block;
 	z-index: 6;
+	-webkit-transform: scale3d(1, 1, 1);
 }
 
 .sprite {
 	position: absolute;
 	display: block;
 	z-index: 100;
+	-webkit-transform: scale3d(1, 1, 1);
 }
 
 .dragged { /* 	border:solid; */
