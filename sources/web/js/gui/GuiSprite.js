@@ -26,7 +26,7 @@ guiFactory.addClass(GuiSprite);
 GuiSprite.prototype.initialize = function(params) {
 	GuiSprite.parent.initialize.call(this, params);
 
-	this.clampByViewport = this.clampByViewportSimple;
+//	this.clampByViewport = this.clampByViewportSimple;
 
 	this.totalWidth = params['totalImageWidth'];
 	this.totalHeight = params['totalImageHeight'];
@@ -261,11 +261,11 @@ GuiSprite.prototype.setPosition = function(x, y) {
 	this.x = x;
 	this.y = y;
 
-	if (this.viewport) {
-		this.clampByViewport();
-	} else {
+//	if (this.viewport) {
+//		this.clampByViewport();
+//	} else {
 		this.setRealPosition(x, y);
-	}
+//	}
 };
 
 GuiSprite.prototype.setRealPosition = function(x, y) {

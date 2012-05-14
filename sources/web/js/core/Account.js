@@ -88,9 +88,10 @@ Account.prototype.addScheduledEntity = function(newEntity) {
 	var dt = this.globalUpdateInterval;
 	// if adding first object to scheduling queue start update interval
 	if (!this.globalUpdateIntervalHandle) {
-		this.globalUpdateIntervalHandle = this.setInterval(function() {
-			that.update(dt);
-		}, dt);
+		 this.globalUpdateIntervalHandle = this.setInterval(function() {
+		 that.update(dt);
+		 }, dt);
+		
 	}
 	this.scheduledEntities[newEntity.id] = newEntity;
 };
@@ -201,7 +202,7 @@ Account.prototype.commandToServer = function(name, args, callback) {
 };
 
 // make sure client and server are synchronized at the moment
-//var acc = 0;
+// var acc = 0;
 Account.prototype.syncWithServer = function(callback, data, syncInterval) {
 	// console.log("startShedule#",acc++);
 	// var d = new Date();

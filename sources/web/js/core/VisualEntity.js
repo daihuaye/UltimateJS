@@ -43,6 +43,11 @@ VisualEntity.prototype.getVisual = function(visualId) {
 	return this.visuals[id] ? this.visuals[id].visual : null;
 };
 
+VisualEntity.prototype.removeVisual = function(visualId) {
+	var id = (visualId == null) ? 0 : visualId;
+	this.guiParent.removeGui(this.visuals[id].visual);
+};
+
 VisualEntity.prototype.getVisualInfo = function(visualId) {
 	var id = (visualId == null) ? 0 : visualId;
 	return this.visuals[id];
@@ -108,7 +113,6 @@ VisualEntity.prototype.setPosition = function(x, y) {
 
 VisualEntity.prototype.move = function(dx, dy) {
 	this.setPosition(this.x + dx, this.y + dy);
-	
 };
 
 // Aligns logic position of visualEntity to the one

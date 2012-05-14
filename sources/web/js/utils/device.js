@@ -1,6 +1,7 @@
 /**
  * Device Properties
  */
+
 var USE_NATIVE_RENDER = true;
 var Device = (function() {
 	// private interface
@@ -76,6 +77,14 @@ var Device = (function() {
 		};
 	}
 
+	//requestAnimationFrame crossbrowser
+	 window.requestAnimFrame = (function(){
+	      return  window.requestAnimationFrame       || 
+	              window.webkitRequestAnimationFrame || 
+	              window.mozRequestAnimationFrame    || 
+	              window.oRequestAnimationFrame      || 
+	              window.msRequestAnimationFrame 
+	    })();
 	// test to find out relative speed of device
 	// and switch graphics resolution accordingly
 	function runBenchmark() {

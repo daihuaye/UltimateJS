@@ -63,6 +63,13 @@ Item.prototype.createVisual = function() {
 		totalImageHeight : this.description['totalImageHeight'],
 		totalTile : this.description['totalTile']
 	});
+//	for(var i=0;i<=10;i++){
+//		for(var j=0;j<=10;j++){
+//		x=i*100;
+//		y=j*100;
+//		visual.jObject['append']("<div class='sprite' style='width : 100px; height : 100px; -webkit-transform: translateX("+x+"px) translateY("+y+"px) scaleX(1) scaleY(1);background-image: url(http://logicking.com/html5/KittyWorldTest/images/introScreen.jpg); background-size : cover'></div>")
+//		}
+//	}
 
 	var visualInfo = {};
 	visualInfo.visual = visual;

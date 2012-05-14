@@ -68,6 +68,16 @@ LocalStorageServer.prototype.init = function(params) {
 		that.attention += 3;
 		return true;
 	});
+	this.addCommand("changeStat", function(args) {
+		entities = that.entities;
+		entities['Account01'][args[0]] += args[1];
+		if(args[0] == "happyness"){
+			that.attention += args[1];
+			that.food += args[1];
+			//add purity
+		}
+		return true;
+	});
 	this.addCommand("feedCat", function(args) {
 		var entities = that.entities;
 		var id = args[0];

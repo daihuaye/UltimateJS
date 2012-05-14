@@ -52,9 +52,9 @@ Actor.prototype.createVisual = function() {
 
 Actor.prototype.update = function() {
 
-	if(this.rootAction) {
-		this.rootAction.update.call(this);
-	}
+//	if(this.rootAction) {
+//		this.rootAction.update.call(this);
+//	}
 };
 
 
