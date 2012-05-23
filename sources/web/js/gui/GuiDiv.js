@@ -482,10 +482,6 @@ GuiDiv.prototype.clampByViewportSimple = function() {
 
 
 GuiDiv.prototype.remove = function() {
-	if(this.id == "GuiDiv169"){
-		var a;
-		a++;
-	}
 	GuiDiv.parent.remove.call(this);
 	this.setDragListener(false);
 };

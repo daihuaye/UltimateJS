@@ -26,6 +26,7 @@ guiFactory.addClass(GuiSprite);
 GuiSprite.prototype.initialize = function(params) {
 	GuiSprite.parent.initialize.call(this, params);
 
+	//.hack temporary disable viewport for sprites at all
 //	this.clampByViewport = this.clampByViewportSimple;
 
 	this.totalWidth = params['totalImageWidth'];

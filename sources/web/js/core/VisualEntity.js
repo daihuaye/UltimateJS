@@ -45,7 +45,9 @@ VisualEntity.prototype.getVisual = function(visualId) {
 
 VisualEntity.prototype.removeVisual = function(visualId) {
 	var id = (visualId == null) ? 0 : visualId;
-	this.guiParent.removeGui(this.visuals[id].visual);
+	var visual = this.visuals[id].visual;
+	this.guiParent.removeGui(visual);
+	delete this.visuals[id];
 };
 
 VisualEntity.prototype.getVisualInfo = function(visualId) {
@@ -99,6 +101,10 @@ VisualEntity.prototype.setPosition = function(x, y) {
 	
 	var that = this;
 	$['each'](that.visuals, function(id, visualInfo) {
+		// dont' move dependent
+		if(visualInfo.dependent) {
+			return;
+		}
 		var x = that.x, y = that.y;
 		if (typeof visualInfo.offsetX == "number") {
 			x -= visualInfo.offsetX;
