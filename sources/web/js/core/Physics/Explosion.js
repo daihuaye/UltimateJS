@@ -14,7 +14,7 @@ Physics.explode = function(params) { //(center, radius, force, duration, owner, 
 	var decr = (params.decr!=null) ? params.decr : 1;
 	var world = Physics.getWorld();
 	var score = 0;
-	var delta = (params.delta > 0) ? params.delta : 10;
+	var delta = (params.delta > 0) ? params.delta : 20;
 	var time = params.duration / delta;		
 	function tick() {
 		setTimeout(function () {
@@ -30,8 +30,11 @@ Physics.explode = function(params) { //(center, radius, force, duration, owner, 
 					impulse.Multiply(FORCE_RATING * params.force / 
 							Math.pow(1 + dist, decr));
 					if (body.m_userData) 
-						if (body.m_userData.params.id != "CannonBall")
+						if (body.m_userData.params.id != "CannonBall") {
+							body.WakeUp();
 							body.ApplyImpulse(impulse, body.GetCenterPosition());
+							body.AllowSleeping(true);
+						}
 
 					if ((body.m_userData)&&(body.m_userData.destructable)) {
 						var damage = impulse.Length()/DAMAGE_DECR;

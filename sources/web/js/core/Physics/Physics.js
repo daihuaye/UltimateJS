@@ -301,7 +301,7 @@ var Physics = (function() {
 
 			var world = this.getWorld();
 
-			world['Step'](delta / 1350, 20);
+			world['Step'](delta / 1350, 50);
 			// this.getWorld().Step(delta / 1000 * (1.0), 20);
 			// this.getWorld().Step(delta / 1000 * (0.00), 20);
 			if (timeout)

@@ -3898,7 +3898,7 @@ var Physics = (function() {
 
 			var world = this.getWorld();
 
-			world['Step'](delta / 1350, 20);
+			world['Step'](delta / 1350, 50);
 			// this.getWorld().Step(delta / 1000 * (1.0), 20);
 			// this.getWorld().Step(delta / 1000 * (0.00), 20);
 			if (timeout)
@@ -4096,7 +4096,7 @@ Physics.explode = function(params) { //(center, radius, force, duration, owner, 
 	var decr = (params.decr!=null) ? params.decr : 1;
 	var world = Physics.getWorld();
 	var score = 0;
-	var delta = (params.delta > 0) ? params.delta : 10;
+	var delta = (params.delta > 0) ? params.delta : 20;
 	var time = params.duration / delta;		
 	function tick() {
 		setTimeout(function () {
@@ -4112,8 +4112,11 @@ Physics.explode = function(params) { //(center, radius, force, duration, owner, 
 					impulse.Multiply(FORCE_RATING * params.force / 
 							Math.pow(1 + dist, decr));
 					if (body.m_userData) 
-						if (body.m_userData.params.id != "CannonBall")
+						if (body.m_userData.params.id != "CannonBall") {
+							body.WakeUp();
 							body.ApplyImpulse(impulse, body.GetCenterPosition());
+							body.AllowSleeping(true);
+						}
 
 					if ((body.m_userData)&&(body.m_userData.destructable)) {
 						var damage = impulse.Length()/DAMAGE_DECR;
@@ -4450,7 +4453,7 @@ PhysicEntity.prototype.createPhysics = function() {
 	bodyDefinition.linearDamping = physicParams.linearDamping;
 	physicWorld = Physics.getWorld();
 	this.physics = physicWorld.CreateBody(bodyDefinition);
-	this.physics.AllowSleeping(false);
+	//this.physics.AllowSleeping(true);
 	this.physics.SetCenterPosition(
 			new b2Vec2(logicPosition.x, logicPosition.y), 0);
 	this.destructable = physicParams["destructable"];
