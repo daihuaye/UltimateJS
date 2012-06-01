@@ -177,6 +177,7 @@ PhysicEntity.prototype.createPhysics = function() {
 	bodyDefinition.linearDamping = physicParams.linearDamping;
 	physicWorld = Physics.getWorld();
 	this.physics = physicWorld.CreateBody(bodyDefinition);
+	this.physics.AllowSleeping(false);
 	this.physics.SetCenterPosition(
 			new b2Vec2(logicPosition.x, logicPosition.y), 0);
 	this.destructable = physicParams["destructable"];

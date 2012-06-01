@@ -1,4 +1,4 @@
-var DAMAGE_DECR = 100;
+var DAMAGE_DECR = 200;
 var FORCE_RATING = 100;
 
 // Creates physics explosion without any visual presentation
@@ -29,9 +29,10 @@ Physics.explode = function(params) { //(center, radius, force, duration, owner, 
 					impulse.Normalize();
 					impulse.Multiply(FORCE_RATING * params.force / 
 							Math.pow(1 + dist, decr));
-					if (body.m_userData)
+					if (body.m_userData) 
 						if (body.m_userData.params.id != "CannonBall")
-							body.ApplyImpulse(impulse, bodyCenter);
+							body.ApplyImpulse(impulse, body.GetCenterPosition());
+
 					if ((body.m_userData)&&(body.m_userData.destructable)) {
 						var damage = impulse.Length()/DAMAGE_DECR;
 						body.m_userData.onDamage(damage);

@@ -4080,7 +4080,7 @@ var collisionCallback = function() {
 };
 
 
-var DAMAGE_DECR = 100;
+var DAMAGE_DECR = 200;
 var FORCE_RATING = 100;
 
 // Creates physics explosion without any visual presentation
@@ -4111,9 +4111,10 @@ Physics.explode = function(params) { //(center, radius, force, duration, owner, 
 					impulse.Normalize();
 					impulse.Multiply(FORCE_RATING * params.force / 
 							Math.pow(1 + dist, decr));
-					if (body.m_userData)
+					if (body.m_userData) 
 						if (body.m_userData.params.id != "CannonBall")
-							body.ApplyImpulse(impulse, bodyCenter);
+							body.ApplyImpulse(impulse, body.GetCenterPosition());
+
 					if ((body.m_userData)&&(body.m_userData.destructable)) {
 						var damage = impulse.Length()/DAMAGE_DECR;
 						body.m_userData.onDamage(damage);
@@ -4449,6 +4450,7 @@ PhysicEntity.prototype.createPhysics = function() {
 	bodyDefinition.linearDamping = physicParams.linearDamping;
 	physicWorld = Physics.getWorld();
 	this.physics = physicWorld.CreateBody(bodyDefinition);
+	this.physics.AllowSleeping(false);
 	this.physics.SetCenterPosition(
 			new b2Vec2(logicPosition.x, logicPosition.y), 0);
 	this.destructable = physicParams["destructable"];
@@ -4797,14 +4799,19 @@ Effect.prototype.play = function(position, callback) {
 		gui.clampByParentViewport();
 		that.guis.push(gui);
 		$['each'](gui.animations, function(id, anim) {
-			gui.playAnimation(id, that.params.lifeTime, false, true);
-		});
+			gui.playAnimation(id, that.params.lifeTime, false, true);		
+			that.setTimeout(function() {
+				gui.remove();
+				if (callback) callback();
+			}, that.params.lifeTime);		
+		});	
 	});
 
-	that.setTimeout(function() {
-		that.destroy();
-		if (callback) callback();
-	}, this.params.lifeTime);
+//	that.setTimeout(function() {
+//		that.destroy();
+//	
+//		if (callback) callback();
+//	}, this.params.lifeTime);
 };
 
 Effect.prototype.destroy = function() {
@@ -6665,6 +6672,8 @@ GuiScroll.prototype.resize = function() {
  * GuiSprite - sprite of GuiScene
  */
 
+var GUISPRITE_HACK_ON = false;
+
 GuiSprite.prototype = new GuiDiv();
 GuiSprite.prototype.constructor = GuiSprite;
 
@@ -6697,9 +6706,9 @@ GuiSprite.prototype.initialize = function(params) {
 
 	this.totalSrc = params['totalImage'];
 	// // .hack temporary for older games
-	// if (GUI_SPRITE_IMAGES_FROM_RESOURCES) {
-	// this.totalSrc = Resources.getImage(params['totalImage']);
-	// }
+	 if (GUISPRITE_HACK_ON) {
+		 this.totalSrc = Resources.getImage(params['totalImage']);
+	 }
 
 	if (params['totalTile'] == null) {
 		this.totalTile = {
