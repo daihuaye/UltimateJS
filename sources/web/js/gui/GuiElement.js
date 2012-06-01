@@ -85,21 +85,6 @@ GuiElement.prototype.bind = function(bindFunction, bindType) {
 
 	this.jObject['bind'](Device.event(bindType) + ".guiElementEvents",
 			callbackCaller);
-
-	// if (Device.isTouch()) {
-	// this.jObject['bind']("touchstart.guiElementEvents",
-	// (bindOnMouseUp != true) ? callbackCaller
-	// : preventDefaultEventFunction);
-	// this.jObject['bind']("touchsmove.guiElementEvents",
-	// preventDefaultEventFunction);
-	// this.jObject['bind']("touchend.guiElementEvents",
-	// (bindOnMouseUp == true) ? callbackCaller
-	// : preventDefaultEventFunction);
-	// } else {
-	// this.jObject['bind']("click.guiElementEvents", callbackCaller);
-	// this.jObject['bind']("mousedown.guiElementEvents",
-	// preventDefaultEventFunction);
-	// }
 };
 
 GuiElement.prototype.unbind = function(callbackType) {
