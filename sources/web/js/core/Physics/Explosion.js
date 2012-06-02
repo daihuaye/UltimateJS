@@ -1,4 +1,4 @@
-var DAMAGE_DECR = 200;
+var DAMAGE_DECR = 150;
 var FORCE_RATING = 100;
 
 // Creates physics explosion without any visual presentation
@@ -12,6 +12,7 @@ var FORCE_RATING = 100;
 // owner - object that initiate explosion, should not affect it
 Physics.explode = function(params) { //(center, radius, force, duration, owner, decr) {
 	var decr = (params.decr!=null) ? params.decr : 1;
+	DAMAGE_DECR = (params.damageDecr != null) ? params.damageDecr : 150;
 	var world = Physics.getWorld();
 	var score = 0;
 	var delta = (params.delta > 0) ? params.delta : 20;
@@ -45,7 +46,7 @@ Physics.explode = function(params) { //(center, radius, force, duration, owner, 
 			};
 			if (time < params.duration) tick(); 
 			time += delta;
-		}, 10);
+		}, 5);
 	};
 	tick();
 };	
