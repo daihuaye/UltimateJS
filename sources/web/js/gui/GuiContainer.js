@@ -51,7 +51,7 @@ GuiContainer.prototype.clear = function() {
 		}
 	}
 	popAllElementsFromArray(this.guiEntities);
-	delete this.guiEntitiesMap;
+	this.guiEntitiesMap = {};
 };
 
 GuiContainer.prototype.remove = function() {
