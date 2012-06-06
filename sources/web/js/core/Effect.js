@@ -52,14 +52,19 @@ Effect.prototype.play = function(position, callback) {
 		gui.clampByParentViewport();
 		that.guis.push(gui);
 		$['each'](gui.animations, function(id, anim) {
-			gui.playAnimation(id, that.params.lifeTime, false, true);
-		});
+			gui.playAnimation(id, that.params.lifeTime, false, true);		
+			that.setTimeout(function() {
+				gui.remove();
+				if (callback) callback();
+			}, that.params.lifeTime);		
+		});	
 	});
 
-	that.setTimeout(function() {
-		that.destroy();
-		if (callback) callback();
-	}, this.params.lifeTime);
+//	that.setTimeout(function() {
+//		that.destroy();
+//	
+//		if (callback) callback();
+//	}, this.params.lifeTime);
 };
 
 Effect.prototype.destroy = function() {

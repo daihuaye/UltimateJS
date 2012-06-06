@@ -84,6 +84,7 @@ PhysicEntity.prototype.createPhysics = function() {
 		shapeDefinition.radius = physicParams.radius;
 		setShapeParams(shapeDefinition, physicParams);
 		bodyDefinition.AddShape(shapeDefinition);
+		bodyDefinition.bullet == true;
 		break;
 	}
 	case "Poly": {
@@ -124,6 +125,50 @@ PhysicEntity.prototype.createPhysics = function() {
 		});
 		break;
 	}
+	case "PrimitiveComposite": {
+		$['each'](physicParams.shapes, function(id, shapeData) {
+			switch (shapeData.type) {
+				case "Box": {
+					shapeDefinition = new b2BoxDef();
+					shapeDefinition.extents = new b2Vec2(shapeData.width / 2,
+							shapeData.height / 2);
+					setShapeParams(shapeDefinition, shapeData);
+					shapeDefinition.localPosition = new b2Vec2(shapeData.x, shapeData.y);
+
+					bodyDefinition.AddShape(shapeDefinition);
+
+					break;
+				}
+				case "Circle": {
+					shapeDefinition = new b2CircleDef();
+					shapeDefinition.radius = physicParams.radius;
+					setShapeParams(shapeDefinition, physicParams);
+
+					bodyDefinition.AddShape(shapeDefinition);
+					break;
+				}
+				case "Poly": {
+					shapeDefinition = new b2PolyDef();
+					shapeDefinition.vertexCount = physicParams.vertexCount;
+					shapeDefinition.vertices = physicParams.vertices;
+					setShapeParams(shapeDefinition, physicParams);
+
+					bodyDefinition.AddShape(shapeDefinition);
+					break;
+				}
+				case "Triangle": {
+					shapeDefinition = new b2PolyDef();
+					shapeDefinition.vertexCount = 3;
+					shapeDefinition.vertices = physicParams.vertices;
+
+					bodyDefinition.AddShape(shapeDefinition);
+					setShapeParams(shapeDefinition, physicParams);
+					break;
+				}
+			}
+		});
+		break;
+	}
 	}
 
 	// Configuring and creating body (returning it)
@@ -132,6 +177,7 @@ PhysicEntity.prototype.createPhysics = function() {
 	bodyDefinition.linearDamping = physicParams.linearDamping;
 	physicWorld = Physics.getWorld();
 	this.physics = physicWorld.CreateBody(bodyDefinition);
+	//this.physics.AllowSleeping(true);
 	this.physics.SetCenterPosition(
 			new b2Vec2(logicPosition.x, logicPosition.y), 0);
 	this.destructable = physicParams["destructable"];
@@ -266,6 +312,7 @@ PhysicEntity.prototype.destroy = function() {
 	if (this.physics) {
 		Physics.getWorld().DestroyBody(this.physics);
 	}
+	Account.instance.removeEntity(this.id, true);
 };
 
 // damage received by other object
@@ -296,11 +343,11 @@ PhysicEntity.prototype.onDamage = function(damage) {
 			if (that.params.builtInDestruction)
 				visualInfo.visual.setAnimationEndCallback(function() {
 					that.destroy();
-					delete that;
+//					delete that;
 				});
 			else {
 				that.destroy();
-				delete that;
+//				delete that;
 			}
 			return;
 		});

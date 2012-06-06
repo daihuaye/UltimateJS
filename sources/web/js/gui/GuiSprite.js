@@ -2,6 +2,8 @@
  * GuiSprite - sprite of GuiScene
  */
 
+var GUISPRITE_HACK_ON = false;
+
 GuiSprite.prototype = new GuiDiv();
 GuiSprite.prototype.constructor = GuiSprite;
 
@@ -26,6 +28,7 @@ guiFactory.addClass(GuiSprite);
 GuiSprite.prototype.initialize = function(params) {
 	GuiSprite.parent.initialize.call(this, params);
 
+	//.hack temporary disable viewport for sprites at all
 //	this.clampByViewport = this.clampByViewportSimple;
 
 	this.totalWidth = params['totalImageWidth'];
@@ -33,9 +36,9 @@ GuiSprite.prototype.initialize = function(params) {
 
 	this.totalSrc = params['totalImage'];
 	// // .hack temporary for older games
-	// if (GUI_SPRITE_IMAGES_FROM_RESOURCES) {
-	// this.totalSrc = Resources.getImage(params['totalImage']);
-	// }
+	 if (GUISPRITE_HACK_ON) {
+		 this.totalSrc = Resources.getImage(params['totalImage']);
+	 }
 
 	if (params['totalTile'] == null) {
 		this.totalTile = {

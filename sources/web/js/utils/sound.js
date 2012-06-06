@@ -42,8 +42,12 @@ var Sound = (function() {
 		};
 	}
 
-	function playAudio(id, loop, volume) {
+	function playAudio(id, loop, volume, priority) {
 		var snd = sounds[id];
+		var sndInstance = {
+			id : id,
+			priority : priority
+		};
 		if (!snd || !snd.audio)
 			return null;
 
@@ -65,10 +69,16 @@ var Sound = (function() {
 				}
 				this.play();
 			}, false);
+		} else {
+			snd.audio.addEventListener('ended', function() {
+				if (sndInstance.channel) {
+					channels[sndInstance.channel] = null;
+				}
+			}, false);
 		}
 
 		// sound instance
-		return id;
+		return sndInstance;
 	}
 
 	function stopAudio(id, repeat) {
@@ -80,6 +90,7 @@ var Sound = (function() {
 
 	// Audio Sprite Interface
 	var audioSpriteTimeoutHandler = null;
+	var audioSpriteEndCallback = null;
 
 	// var jPlayerInstance;
 	function initAudioSprite(audioSpriteName) {
@@ -119,8 +130,7 @@ var Sound = (function() {
 											// $.jPlayer.event.ended
 											// event
 											var timeNow = event['jPlayer'].status.currentTime;
-											console.log("Jplayer playing "
-													+ timeNow);
+											//console.log("Jplayer playing " + timeNow);
 										},
 										timeupdate : function(event) { // The
 											// $.jPlayer.event.ended
@@ -140,23 +150,41 @@ var Sound = (function() {
 		};
 	}
 
-	function playAudioSprite(id, repeat, volume) {
+	function playAudioSprite(id, repeat, volume, priority) {
 		var audioSprite = sounds[id];
-		if (!audioSprite)
+		var sndInstance = {
+			id : id,
+			priority : priority
+		};
+		
+		if (!audioSprite) {
 			return null;
-
-		if (volume)
+		}
+			
+		if (audioSpriteEndCallback) {
+			audioSpriteEndCallback();
+			audioSpriteEndCallback = null;
+		}
+				
+		if (volume) {
 			jPlayerInstance['jPlayer']("volume", volume);
+		}
 
 		jPlayerInstance['jPlayer']("pause", audioSprite.start + playOffset);
 		jPlayerInstance['jPlayer']("play", audioSprite.start + playOffset);
 
-		clearTimeout(audioSpriteTimeoutHandler);
-		audioSpriteTimeoutHandler = setTimeout(stopAudioSprite,
+		audioSpriteEndCallback = function() {
+			stopAudioSprite();
+			if (sndInstance.channel) {
+				channels[sndInstance.channel] = null;
+				//console.log("end audio", sndInstance.id);
+			}
+		};
+
+		audioSpriteTimeoutHandler = setTimeout(audioSpriteEndCallback,
 				audioSprite.length * 1000);
 
-		// sound instance
-		return id;
+		return sndInstance;
 	}
 
 	function stopAudioSprite(dontStopJplayer) {
@@ -169,15 +197,26 @@ var Sound = (function() {
 
 	return {
 		// public interface
-
+		TURNED_OFF_BY_DEFAULT : false,
+		LOW_PRIORITY : -100,
+		NORMAL_PRIORITY : 0,
+		HIGH_PRIORITY : 100,
 		// init sounds
 		init : function(audioSpriteName, forceAudioSprite, pathToScripts) {
 
 			useAudioSprite = forceAudioSprite
 					|| (typeof (audioSpriteName) == "string")
 					&& Device.isMobile();
-			soundOn = Device.getStorageItem("soundOn", "true") == "true";
-
+			
+			soundOn = Device.getStorageItem("soundOn", null);
+			// init sound for the first time
+			if(soundOn == null) {
+				soundOn = Sound.TURNED_OFF_BY_DEFAULT ? false : true;
+				Device.setStorageItem("soundOn", soundOn);
+			} else {
+				soundOn = (soundOn == "true");
+			}
+			
 			if (useAudioSprite) {
 				PATH_TO_JPLAYER_SWF = pathToScripts ? pathToScripts
 						: PATH_TO_JPLAYER_SWF;
@@ -215,7 +254,7 @@ var Sound = (function() {
 					} else if (canPlayMp4) {
 						audioExtention = '.mp4';
 						playOffset = 0;
-					}else if (canPlayMp3) {
+					} else if (canPlayMp3) {
 						audioExtention = '.mp3';
 						playOffset = MP3_OFFSET;
 					}
@@ -266,7 +305,7 @@ var Sound = (function() {
 			if (!soundOn)
 				return;
 
-			var channel, id, loop, volume;
+			var channel, id, loop, volume = null, priority = null;
 			// args: soundId or params
 			if (arguments.length == 1) {
 				if (typeof (arguments[0]) == "object") {
@@ -275,6 +314,7 @@ var Sound = (function() {
 					id = params.id;
 					loop = params.loop;
 					volume = params.volume;
+					priority = params.priority;
 				} else {
 					channel = null;
 					id = arguments[0];
@@ -286,31 +326,44 @@ var Sound = (function() {
 					channel = null;
 					id = arguments[0];
 					loop = arguments[1];
+					// args: channel, soundId
 				} else {
 					channel = arguments[0];
 					id = arguments[1];
 					loop = null;
 				}
-				// args: channel, soundId, loop
+				// args: channel, soundId, loop, priority
 			} else {
 				channel = arguments[0];
 				id = arguments[1];
 				loop = arguments[2];
+				priority = arguments[3];
 			}
 
 			// stop the current sound for the specified channel
 			// if channel = null - no channels used
 			if (channel != null) {
 				var curSnd = channels[channel];
+
 				if (curSnd) {
-					stopFunc.call(this, curSnd);
-					channels[channel] = null;
+					var curSndPriority = curSnd.priority
+							|| Sound.NORMAL_PRIORITY;
+					if (priority >= curSndPriority) {
+						//console.log("stop audio", curSnd.id);
+						stopFunc.call(this, curSnd);
+						channels[channel] = null;
+					} else {
+						//console.log("can't play audio", id, curSnd.id);
+						return null;
+					}
 				}
 			}
 
-			var newSnd = playFunc.call(this, id, loop, volume);
+			//console.log("play audio", id);
+			var newSnd = playFunc.call(this, id, loop, volume, priority);
 			if (newSnd && channel != null) {
 				channels[channel] = newSnd;
+				newSnd.channel = channel;
 			}
 			return newSnd;
 		},

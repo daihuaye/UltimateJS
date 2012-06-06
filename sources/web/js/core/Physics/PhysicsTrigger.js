@@ -15,6 +15,24 @@ CreatePhysicsTrigger = function(world, rect, action) {
 			ifIn = true;
 		return ifIn;
 	};
+	
+	instance.move = function(x, y)
+	{
+		this.rect.left += x;
+		this.rect.right += x;
+		this.rect.top += y;
+		this.rect.bottom += y;
+	};
+	
+	instance.setPosition = function(x, y)
+	{
+		var w = rect.right - rect.left;
+		var h = rect.bottom - rect.top;
+		this.rect.left = x;
+		this.rect.right = x + w;
+		this.rect.top = y;
+		this.rect.bottom = y + h;
+	};
 
 	instance.update = function() {
 		var body = instance.world.m_bodyList;
