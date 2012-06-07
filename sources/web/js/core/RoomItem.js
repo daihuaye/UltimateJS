@@ -33,7 +33,7 @@ RoomItem.prototype.init = function(params) {
 };
 
 RoomItem.prototype.createVisual = function() {
-	RoomItem.parent.createVisual.call(this);
+	//RoomItem.parent.createVisual.call(this);
 	var that = this;
 	var moneySmallImage;
 	this.moneyBigImage;
@@ -46,6 +46,66 @@ RoomItem.prototype.createVisual = function() {
 	}
 
 	if (this.forSale == true) {
+		
+		if(this.description['type'] == "food"){
+			var iScale = 0.61; 
+		}else{
+			var iScale = 1;
+		}
+		
+		this.assert(this.guiParent,
+				"No gui parent provided for creating visuals");
+		this.description = Account.instance.descriptionsData[this.params['description']];
+		this.assert(this.description, "There is no correct description");
+		visual = guiFactory.createObject("GuiButton", {
+			parent : this.guiParent,
+			style : "sprite",
+			x : this.params['x'],
+			y : this.params['y'],
+			normal : {
+				background : [ {
+					"image" : this.description['totalImage'],
+					"width" : this.description['totalImageWidth']*iScale,
+					"height" : this.description['totalImageHeight']*iScale
+				} ],
+				scale: 100
+			},
+			active : {
+				background : [ {
+					"image" : this.description['totalImage'],
+					"width" : this.description['totalImageWidth']*iScale,
+					"height" : this.description['totalImageHeight']*iScale
+				} ],
+				scale: 100
+			},
+			width : this.description['totalImageWidth']*iScale,
+			height : this.description['totalImageHeight']*iScale,
+			scale: 100
+		});
+		// for(var i=0;i<=10;i++){
+		// for(var j=0;j<=10;j++){
+		// x=i*100;
+		// y=j*100;
+		// visual.jObject['append']("<div class='sprite' style='width : 100px;
+		// height : 100px; -webkit-transform: translateX("+x+"px)
+		// translateY("+y+"px) scaleX(1) scaleY(1);background-image:
+		// url(http://logicking.com/html5/KittyWorldTest/images/introScreen.jpg);
+		// background-size : cover'></div>")
+		// }
+		// }
+
+		var visualInfo = {};
+		visualInfo.visual = visual;
+		visualInfo.z = this.description['z-index'];
+		visualInfo.offsetX = this.description['centerX'] ? calcPercentage(
+				this.description['centerX'], this.description['width']) : 0;
+		visualInfo.offsetY = this.description['centerY'] ? calcPercentage(
+				this.description['centerY'], this.description['height']) : 0;
+
+		this.addVisual(null, visualInfo);
+		this.setPosition(this.x, this.y);
+		this.setZ(null);
+
 		visual = guiFactory.createObject("GuiButton", {
 			parent : that.guiParent,
 			style : "sprite",
@@ -62,26 +122,53 @@ RoomItem.prototype.createVisual = function() {
 					"height" : 16,
 					"x" : 5,
 					"y" : 5
-				} ]
-
-//				"label" : {
-//					"style" : "gameButton pusab-blue",
-//					"text" : that.description['price'],
-//					"fontSize" : 15,
-//					"scale" : 100,
-//					"color" : "#01B5FF",
-//					"x" : 28,
-//					"y" : 12
-//				}
+				} ],
+				"label" : {
+					"style" : "gameButton pusab-blue",
+					"text" : that.description['price'],
+					"fontSize" : 15,
+					"scale" : 100,
+					"color" : "#01B5FF",
+					"x" : 28,
+					"y" : 12
+				}
 			},
-			x : that.params['x']  - 39,
-			y : that.params['y'] + that.description['height']
+			active : {
+				background : [ {
+					"image" : "shop/MarketFieldPrice.png",
+					"width" : 79,
+					"height" : 24
+				}, {
+					"image" : moneySmallImage,
+					"width" : 15,
+					"height" : 16,
+					"x" : 5,
+					"y" : 5
+				} ],
+				"label" : {
+					"style" : "gameButton pusab-blue",
+					"text" : that.description['price'],
+					"fontSize" : 15,
+					"scale" : 100,
+					"color" : "#01B5FF",
+					"x" : 28,
+					"y" : 12
+				}
+			},
+			x : that.params['x'] - 39 - 39 * (1 - iScale),
+			y : that.params['y'] - that.description['totalImageHeight'] * (1 - iScale)
 		});
 		visualInfo = {};
 		visual.clampByParentViewport();
 		visualInfo.visual = visual;
 		visualInfo.z = this.description['z-index'];
-		this.addVisual(1, visualInfo);
+		visualInfo.offsetX = this.description['centerX'] ? calcPercentage(
+				this.description['centerX'], this.description['width']) : 0;
+		visualInfo.offsetY = this.description['centerY'] ? calcPercentage(
+				this.description['centerY'], this.description['height']) : 0;
+		this.addVisual("price", visualInfo);
+	} else {
+		RoomItem.parent.createVisual.call(this);
 	}
 };
 

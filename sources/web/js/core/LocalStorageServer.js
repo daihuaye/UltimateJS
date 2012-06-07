@@ -64,12 +64,23 @@ LocalStorageServer.prototype.init = function(params) {
 	var that = this;
 	this.addCommand("petCat", function() {
 		entities = that.entities;
-		entities['Account01']['energy'] -= 3;
+		entities['Account01']['energy'] -= 15;
 		that.attention += 3;
 		return true;
 	});
+	
+	this.addCommand("levelUp", function() {
+		entities = that.entities;
+		entities['Account01']['level'] += 1;
+		entities['Account01']['nextLevelValue'] *= 3;
+		return true;
+	});
+	
 	this.addCommand("changeStat", function(args) {
 		entities = that.entities;
+		if(args[0] == "gameMoney"){
+			args[0] = "money";
+		}
 		entities['Account01'][args[0]] += args[1];
 		if(args[0] == "happyness"){
 			that.attention += args[1];
@@ -81,11 +92,17 @@ LocalStorageServer.prototype.init = function(params) {
 	this.addCommand("feedCat", function(args) {
 		var entities = that.entities;
 		var id = args[0];
-		entities['Account01']['energy'] -= 3;
+		entities['Account01']['energy'] -= 9;
 		that.food += args[1];
 		entities[id]['id'] = id;
 		entities[id]['class'] = "Item";
 		entities[id].parent = null;
+		return true;
+	});
+	
+	this.addCommand("energizeCat", function(args) {
+		var entities = that.entities;
+		entities['Account01']['energy'] += args[0];
 		return true;
 	});
 	this.addCommand("changeParent", function(args) {
@@ -217,14 +234,15 @@ LocalStorageServer.prototype.sendData = function(data, callback) {
 	Device.setStorageItem("entities", JSON.stringify(entities));
 
 	this.selectSubject();
-	if (this.entities['Account01']['experience'] >= 5000) {
-		entities[id] = {};
-		entities[id]['id'] = id;
-		entities[id].newEntity = true;
-		entities[id]['class'] = "Item";
-		entities[id].parent = "Inventory01";
-		entities[id].description = args[0];
-	}
+				//wtf
+//	if (this.entities['Account01']['experience'] >= 5000) {
+//		entities[id] = {};
+//		entities[id]['id'] = id;
+//		entities[id].newEntity = true;
+//		entities[id]['class'] = "Item";
+//		entities[id].parent = "Inventory01";
+//		entities[id].description = args[0];
+//	}
 	// return updated data back to client
 	this.receiveData(callback);
 };
