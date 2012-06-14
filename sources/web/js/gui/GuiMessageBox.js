@@ -40,7 +40,8 @@ GuiMessageBox.prototype.initialize = function(params) {
 				x : value['x'] ? value['x'] : that.width / 2 - value['width']
 						/ 2,
 				y : value['y'] ? value['y'] : that.height * 5 / 18
-						- value['height'] / 2
+						- value['height'] / 2,
+				z : value['z'] ? value['z'] : 0
 			});
 			that.children.addGui(that.icons[index]);
 		});
@@ -76,8 +77,26 @@ GuiMessageBox.prototype.initialize = function(params) {
 			hover : value['params']['hover'],
 			avtive : value['params']['active'],
 			x : value['params']['x'],
-			y : value['params']['y']
+			y : value['params']['y'],
+			activated : value['activated'] ? value['activated'] : false
 		});
+
+		// made for switching rooms
+		if (value['roomPrice']) {
+			that.buttons[value['name']]['roomPrice'] = value['roomPrice'];
+		}
+		if (value['buyLevel']) {
+			that.buttons[value['name']]['buyLevel'] = value['buyLevel'];
+		}
+		if (value['activeLevel']) {
+			that.buttons[value['name']]['activeLevel'] = value['activeLevel'];
+		}
+		if (value['activated']) {
+			that.buttons[value['name']]['activated'] = value['activated'];
+		}
+		if (value['buyAble']) {
+			that.buttons[value['name']]['buyAble'] = value['buyAble'];
+		}
 		that.children.addGui(that.buttons[value['name']]);
 	});
 	this.resize();
