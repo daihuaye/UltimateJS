@@ -12,6 +12,7 @@
 Actor.prototype = new VisualEntity();
 Actor.prototype.constructor = Actor;
 
+
 /**
  * @constructor
  */
@@ -50,14 +51,26 @@ Actor.prototype.createVisual = function() {
 	this.addVisual(null, visualInfo);
 };
 
-Actor.prototype.update = function() {
+Actor.prototype.update = function(dt) {
 
-//	if(this.rootAction) {
-//		this.rootAction.update.call(this);
-//	}
+	if(this.rootAction) {
+		this.rootAction.update(dt);
+	}
 };
 
 
-Actor.prototype.setAction = function(action) {
-	this.rootAction = action;
+Actor.prototype.setAction = function(actionName,  params) {
+	params.actor = this;
+	var action = Action.factory.createObject(actionName, params);
+	if(action) {
+		if(this.rootAction) {
+			this.rootAction.terminate(Action.INTERRUPTED);
+		}
+		this.rootAction = action;
+	}
 };
+
+Actor.prototype.terminateAction = function(action, status) {
+	this.rootAction = null;
+	Account.instance.removeEntity(action.id);
+}

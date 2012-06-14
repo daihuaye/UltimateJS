@@ -5,27 +5,29 @@
  *  terminate
  */
 
+
 /**
  * @constructor
  */
 function Action() {
-	Action.parent.constructor.call(this);
 };
 
-Action.inheritsFrom(Entity);
-Action.prototype.className = "Action";
+// special abstract factory for actions
+Action.factory = new AbstractFactory();
 
-Actor.prototype.createInstance = function(params) {
-	var entity = new Action();
-	entity.init(params);
-	return entity;
+// constants
+Action.SUCCESS = 1;
+Action.INTERRUPTED = 2;
+Action.FAIL = -1;
+Action.IN_PROGRESS = 0;
+
+Action.prototype.init = function(params) {
+	this.id = this.className + uniqueId();
 };
 
-entityFactory.addClass(Action);
-
-Actor.prototype.init = function(params) {
-	Actor.parent.init.call(this, params);
+Action.prototype.update = function(dt) {
 };
 
-Actor.prototype.update = function(params) {
+Action.prototype.terminate = function(status) {
+	this.actor.terminateAction(this, status);
 };
