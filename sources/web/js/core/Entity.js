@@ -16,20 +16,22 @@ Entity.prototype.init = function(params) {
 	// Variables values for synchronizing with server
 	this.properties = {};
 
-	if (typeof params['parent'] == "string") {
+	if (params['parent']) {
 		// find parent among entities in account
-		var parent = Account.instance.getEntity(params['parent']);
-		this.assert(parent, " No parent found with id='" + params['parent']
-				+ "' ");
+		var parent = params['parent'];
+		if (typeof params['parent'] == "string") {
+			parent = Account.instance.getEntity(params['parent']);
+			this.assert(parent, " No parent found with id='" + params['parent']
+					+ "' ");
+		}
 		parent.addChild(this);
-
 	} else {
 		console.log(" No parent provided for entity with id='" + this.id + "'");
 	}
 
 	var enabled = selectValue(params['enabled'], true);
 	this.setEnable(enabled);
-	
+
 	// this.readUpdate(params);
 	this.timeouts = null;
 	this.intervals = null;
@@ -91,15 +93,14 @@ Entity.prototype.isEnabled = function() {
 
 Entity.prototype.setEnable = function(isTrue) {
 	this.enabled = isTrue;
-	if(typeof(this.update) == "function") {
-		if(isTrue) {
+	if (typeof (this.update) == "function") {
+		if (isTrue) {
 			Account.instance.addScheduledEntity(this);
 		} else {
 			Account.instance.removeScheduledEntity(this);
 		}
 	}
 };
-
 
 // Synchronization with server
 Entity.prototype.setDirty = function() {
