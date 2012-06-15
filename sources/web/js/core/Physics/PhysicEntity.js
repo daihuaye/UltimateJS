@@ -259,7 +259,7 @@ PhysicEntity.prototype.physicsEnable = function(v) {
 
 // PhysicEntity update function
 PhysicEntity.prototype.update = function() {
-	if ((this.params.physics) && (this.physicsEnabled))
+	if ((this.params.physics) && (this.physicsEnabled) && (!Physics.paused()))
 		this.updatePositionFromPhysics();
 };
 

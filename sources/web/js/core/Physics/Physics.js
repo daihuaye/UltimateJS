@@ -385,6 +385,9 @@ var Physics = (function() {
 			else
 				pause = v;
 		},
+		paused : function() {
+			return pause;
+		},
 		resetTimeout : function(addTime) {
 			if (!timeout)
 				return;
