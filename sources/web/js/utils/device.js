@@ -251,6 +251,9 @@ var Device = (function() {
 			case 'cursorOut':
 				result = Device.isTouch() ? 'touchstart' : 'mouseout';
 				break;
+			case 'cursorOver':
+				result = Device.isTouch() ? 'touchstart' : 'mouseover';
+				break;	
 			default:
 				assert(false, "Unrecognizible event " + eventName);
 				result = eventName;

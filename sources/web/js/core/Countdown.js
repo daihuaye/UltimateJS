@@ -168,7 +168,7 @@ Countdown.prototype.update = function(updateTime) {
 					this.label.change(this.description['go']);
 					if (this.EndCallback) {
 						this.EndCallback();
-						this.update = null;
+						delete this.update;
 					}
 				}
 			}
@@ -184,7 +184,7 @@ Countdown.prototype.update = function(updateTime) {
 			} else {
 				if (this.EndCallback) {
 					this.EndCallback();
-					this.update = null;
+					delete this.update;
 				}
 			}
 		}

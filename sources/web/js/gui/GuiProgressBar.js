@@ -73,16 +73,24 @@ GuiProgressBar.prototype.initialize = function(params) {
 
 GuiProgressBar.prototype.setNewValue = function(what, newValue) {
 //	var width = Math.round(this.bar.width * (this.max - this.min)
-//			/ (this.current - this.min));
+//			/ (this.current - this.min));if (this.entities['Account01']['experience'] >= 5000) {
+//	entities[id] = {};
+//	entities[id]['id'] = id;
+//	entities[id].newEntity = true;
+//	entities[id]['class'] = "Item";
+//	entities[id].parent = "Inventory01";
+//	entities[id].description = args[0];
+//}
 	this[what] = Math.floor(newValue);
 	if (this.current >= this.max) {
 		this.current = this.max;
 	}
+	
 	this.label.change(this.current);
 	this.bar.width = Math.round((this.current - this.min) * this.stableWidth
 			/ (this.max - this.min));
 	this.bar.setSize(this.bar.width, this.bar.height);
-	// this.resize();
+	this.resize();
 };
 
 
