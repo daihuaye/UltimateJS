@@ -104,7 +104,7 @@ var Sound = (function() {
 						PATH_TO_JPLAYER_SWF + 'jquery.jplayer.min.js',
 						function() {
 							$("body")['append']
-									("<div id='jPlayerInstanceId' style='width: 0px; height: 0px;'></div>");
+									("<div id='jPlayerInstanceId' style='position:absolute; left:50%; right:50%; width: 0px; height: 0px;'></div>");
 							jPlayerInstance = $("#jPlayerInstanceId");
 							jPlayerInstance['jPlayer']
 									({
@@ -117,8 +117,8 @@ var Sound = (function() {
 											// alert("READY11");
 										},
 										supplied : "oga, mp3, m4a",
-										//solution : "flash, html",
-										 solution : "html, flash",
+										solution : "flash, html",
+										//solution : "html, flash",
 										swfPath : PATH_TO_JPLAYER_SWF,
 
 										ended : function() { // The
