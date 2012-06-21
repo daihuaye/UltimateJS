@@ -1,4 +1,4 @@
-var DAMAGE_DECR = 150;
+var DAMAGE_DECR = 180;
 var FORCE_RATING = 100;
 
 // Creates physics explosion without any visual presentation
