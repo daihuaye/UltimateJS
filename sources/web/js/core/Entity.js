@@ -129,8 +129,10 @@ Entity.prototype.readUpdate = function(data) {
 	var parentId = this.parent ? this.parent['id'] : null;
 	// if (data['parent']) {
 	if (data['parent'] != parentId) {
-		this.parent.removeChild(this);
-		this.parent = null;
+		if(this.parent != null){
+			this.parent.removeChild(this);
+			this.parent = null;	
+		}
 		if (data['parent']) {
 			Account.instance.getEntity(data['parent']).addChild(this);
 		}

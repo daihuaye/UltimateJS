@@ -64,7 +64,7 @@ LocalStorageServer.prototype.init = function(params) {
 	var that = this;
 	this.addCommand("petCat", function() {
 		entities = that.entities;
-		entities['Account01']['energy'] -= 15;
+		entities['Account01']['energy'] -= 5;
 		that.attention += 3;
 		return true;
 	});
@@ -112,6 +112,31 @@ LocalStorageServer.prototype.init = function(params) {
 		entities[id]['id'] = id;
 		entities[id]['class'] = "Item";
 		entities[id].parent = newParent;
+		return true;
+	});
+	
+	this.addCommand("changeRoom",function(args){
+		var entities = that.entities;
+		var newId = args[0];
+		var oldId = args[1];
+		entities[entities[oldId].parent]['scene'] = newId;
+		if(entities['Kitty01'].parent == oldId){
+			entities['Kitty01'].parent = newId;
+			entities['ExParticle01'].parent = newId;
+			entities['HappyParticle01'].parent = newId;
+			entities['MoneyParticle01'].parent = newId;
+		}
+		entities[newId].parent = entities[oldId].parent;
+		entities[oldId].parent = null;
+		return true;
+	});
+	
+	this.addCommand("buyRoom",function(args){
+		var entities = that.entities;
+		var id = args[0]['id'];
+		entities[id] = {};
+		entities[id] = args[0];
+		entities[id].newEntity = true;
 		return true;
 	});
 

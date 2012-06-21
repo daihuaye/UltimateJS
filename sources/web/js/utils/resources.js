@@ -10,6 +10,9 @@ var Resources = (function() {
 	var images = new Array();
 	var resolutions = new Object();
 	
+	//enum of strings of current language
+	var strings = new Object();
+	
 	var currentResolution = null;
 	var defaultResolution = null;
 	
@@ -70,7 +73,23 @@ var Resources = (function() {
 				resolutions[resolutionName].images[name] = name;
 			}
 		},
-		
+		//returnes string
+		getString : function(stringId){
+			if(strings[stringId]){
+				return strings[stringId];
+			}else{
+				//console.error(stringId + " Not Found");
+				return stringId;
+			}
+			
+		},
+		//loads json with set language
+		setLanguage : function(language){
+			var fileName = "resources/localization/" + language + ".json"; 
+			$['getJSON'](fileName, function(data){
+				strings = data;
+			});
+		},
 		// returns filename of an image for current resolution 
 		getImage : function(name, preload, preloadCallback) {
 			var imageFilename = null;

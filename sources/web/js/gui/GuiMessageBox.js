@@ -40,7 +40,8 @@ GuiMessageBox.prototype.initialize = function(params) {
 				x : value['x'] ? value['x'] : that.width / 2 - value['width']
 						/ 2,
 				y : value['y'] ? value['y'] : that.height * 5 / 18
-						- value['height'] / 2
+						- value['height'] / 2,
+				z : value['z'] ? value['z'] : 0
 			});
 			that.children.addGui(that.icons[index]);
 		});
@@ -49,7 +50,7 @@ GuiMessageBox.prototype.initialize = function(params) {
 			that.labels[index] = guiFactory.createObject("GuiLabel", {
 				parent : that,
 				style : value['params']['style'],
-				width : value['params']['width'] ? value['params']['height']
+				width : value['params']['width'] ? value['params']['width']
 						: params['width'],
 				height : value['params']['height'],
 				text : value['params']['text'],
@@ -73,11 +74,29 @@ GuiMessageBox.prototype.initialize = function(params) {
 			height : value['params']['height'],
 			params : value['params']['params'],
 			normal : value['params']['normal'],
+			//label : value['params']['label'],
 			hover : value['params']['hover'],
-			avtive : value['params']['active'],
+			active : value['params']['active'],
 			x : value['params']['x'],
-			y : value['params']['y']
+			y : value['params']['y'],
+			activated : value['activated'] ? value['activated'] : false
 		});
+		// made for switching rooms
+		if (value['roomPrice']) {
+			that.buttons[value['name']]['roomPrice'] = value['roomPrice'];
+		}
+		if (value['buyLevel']) {
+			that.buttons[value['name']]['buyLevel'] = value['buyLevel'];
+		}
+		if (value['activeLevel']) {
+			that.buttons[value['name']]['activeLevel'] = value['activeLevel'];
+		}
+		if (value['activated']) {
+			that.buttons[value['name']]['activated'] = value['activated'];
+		}
+		if (value['buyAble']) {
+			that.buttons[value['name']]['buyAble'] = value['buyAble'];
+		}
 		that.children.addGui(that.buttons[value['name']]);
 	});
 	this.resize();

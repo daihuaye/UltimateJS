@@ -314,6 +314,7 @@ GuiSkeleton.prototype.animate = function(moveVector, duration) {
 };
 
 GuiSkeleton.prototype.flip = function(needToBeFlipped) {
+	console.log(this.animations);
 	this.flipped = needToBeFlipped;
 	this.scale = this.flipped ? -1 : 1;
 	cssTransform(this.jObject, null, null, this.scale, null, null);

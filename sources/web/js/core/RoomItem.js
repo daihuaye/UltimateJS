@@ -47,12 +47,11 @@ RoomItem.prototype.createVisual = function() {
 
 	if (this.forSale == true) {
 		
-		if(this.description['type'] == "food"){
+		if((this.description['type'] == "food")||(this.description['type'] == "wash")){
 			var iScale = 0.61; 
 		}else{
 			var iScale = 1;
 		}
-		
 		this.assert(this.guiParent,
 				"No gui parent provided for creating visuals");
 		this.description = Account.instance.descriptionsData[this.params['description']];

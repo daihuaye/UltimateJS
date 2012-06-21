@@ -52,7 +52,6 @@ Actor.prototype.createVisual = function() {
 };
 
 Actor.prototype.update = function(dt) {
-
 	if(this.rootAction) {
 		this.rootAction.update(dt);
 	}
@@ -61,16 +60,24 @@ Actor.prototype.update = function(dt) {
 
 Actor.prototype.setAction = function(actionName,  params) {
 	params.actor = this;
-	var action = Action.factory.createObject(actionName, params);
-	if(action) {
+	
+	//if(action) {
 		if(this.rootAction) {
-			this.rootAction.terminate(Action.INTERRUPTED);
+			if(this.rootAction.className == actionName){
+				this.rootAction.refresh(params);
+			}else{
+				this.rootAction.terminate(Action.INTERRUPTED);
+				this.rootAction = action;
+			}
+		}else{
+			var action = Action.factory.createObject(actionName, params);
+			this.rootAction = action;
 		}
-		this.rootAction = action;
-	}
+	//}
+	
 };
 
 Actor.prototype.terminateAction = function(action, status) {
 	this.rootAction = null;
-	Account.instance.removeEntity(action.id);
+	//Account.instance.removeEntity(action.id);
 }
