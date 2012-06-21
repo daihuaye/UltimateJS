@@ -50,7 +50,7 @@ GuiMessageBox.prototype.initialize = function(params) {
 			that.labels[index] = guiFactory.createObject("GuiLabel", {
 				parent : that,
 				style : value['params']['style'],
-				width : value['params']['width'] ? value['params']['height']
+				width : value['params']['width'] ? value['params']['width']
 						: params['width'],
 				height : value['params']['height'],
 				text : value['params']['text'],
@@ -74,13 +74,13 @@ GuiMessageBox.prototype.initialize = function(params) {
 			height : value['params']['height'],
 			params : value['params']['params'],
 			normal : value['params']['normal'],
+			//label : value['params']['label'],
 			hover : value['params']['hover'],
-			avtive : value['params']['active'],
+			active : value['params']['active'],
 			x : value['params']['x'],
 			y : value['params']['y'],
 			activated : value['activated'] ? value['activated'] : false
 		});
-
 		// made for switching rooms
 		if (value['roomPrice']) {
 			that.buttons[value['name']]['roomPrice'] = value['roomPrice'];

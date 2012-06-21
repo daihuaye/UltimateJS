@@ -64,7 +64,7 @@ LocalStorageServer.prototype.init = function(params) {
 	var that = this;
 	this.addCommand("petCat", function() {
 		entities = that.entities;
-		entities['Account01']['energy'] -= 15;
+		entities['Account01']['energy'] -= 5;
 		that.attention += 3;
 		return true;
 	});
