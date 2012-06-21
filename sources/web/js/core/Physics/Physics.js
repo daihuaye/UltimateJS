@@ -314,7 +314,7 @@ var Physics = (function() {
 			contactListener.update();
 
 			for ( var i = 0; i < updateItems.length; ++i)
-				updateItems[i].update();
+				updateItems[i].updatePhysics();
 		},
 		createSphere : function(x, y, radius, localPosition) {
 			var sphereSd = new b2CircleDef();
@@ -384,6 +384,9 @@ var Physics = (function() {
 				pause = !pause;
 			else
 				pause = v;
+		},
+		paused : function() {
+			return pause;
 		},
 		resetTimeout : function(addTime) {
 			if (!timeout)

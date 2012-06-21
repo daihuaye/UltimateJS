@@ -26,13 +26,17 @@ function ContactListener(contactProcessor) {
 //	Returns list of contacts and contacted entities id
 //
 ContactListener.prototype.getContacts = function() {
-	var contact = world.m_contactList;
+	var body = world.m_bodyList;
 	var contactIDs = new Array();
 	var contacts = new Array();
-	for (; contact != null; contact = contact['m_next']) {
-		contactIDs.push(contact.m_shape1.m_body.m_userData.id + ':'
-				+ contact.m_shape2.m_body.m_userData.id);
-		contacts.push(contact);
+	for (; body != null; body = body['m_next']) {
+		var contact = body.m_contactList;
+		if (contact!=null)
+		for (; contact != null; contact = contact['m_next']) {
+			contactIDs.push(contact.contact.m_shape1.m_body.m_userData.id + ':'
+					+ contact.contact.m_shape2.m_body.m_userData.id);
+			contacts.push(contact.contact);
+		}
 	}
 	return {
 		"iDs" : contactIDs,

@@ -84,7 +84,7 @@ PhysicEntity.prototype.createPhysics = function() {
 		shapeDefinition.radius = physicParams.radius;
 		setShapeParams(shapeDefinition, physicParams);
 		bodyDefinition.AddShape(shapeDefinition);
-		bodyDefinition.bullet == true;
+		//bodyDefinition.bullet == true;
 		break;
 	}
 	case "Poly": {
@@ -177,7 +177,6 @@ PhysicEntity.prototype.createPhysics = function() {
 	bodyDefinition.linearDamping = physicParams.linearDamping;
 	physicWorld = Physics.getWorld();
 	this.physics = physicWorld.CreateBody(bodyDefinition);
-	//this.physics.AllowSleeping(true);
 	this.physics.SetCenterPosition(
 			new b2Vec2(logicPosition.x, logicPosition.y), 0);
 	this.destructable = physicParams["destructable"];
@@ -214,6 +213,8 @@ PhysicEntity.prototype.createVisual = function() {
 PhysicEntity.prototype.updatePositionFromPhysics = function() {
 	var that = this;
 
+	if (that.physics==null)
+		return;
 	that.setPosition(that.physics.m_position.x - that.params.physics.x
 			- that.params.physics.width / 2, that.physics.m_position.y
 			- that.params.physics.y - that.params.physics.height / 2);
@@ -258,9 +259,12 @@ PhysicEntity.prototype.physicsEnable = function(v) {
 };
 
 // PhysicEntity update function
-PhysicEntity.prototype.update = function() {
-	if ((this.params.physics) && (this.physicsEnabled))
-		this.updatePositionFromPhysics();
+PhysicEntity.prototype.updatePhysics = function() {
+	if ((this.params.physics) && (this.physicsEnabled) && (!Physics.paused()))
+		{
+			this.updatePositionFromPhysics();
+				//this.physics.SetCenterPosition(this.physics.GetCenterPosition(), this.physics.GetRotation());
+		}
 };
 
 // Gets object rotation from physics (IN WHAT MEASURE? - in !Radians!)
@@ -293,7 +297,7 @@ PhysicEntity.prototype.rotateByAxis = function(axis, angle) {
 	$['each'](this.visuals, function(id, visualInfo) {
 		var t = matTrans.transformPoint(that.params.x - that.params.physics.x,
 				that.params.y - that.params.physics.y);
-		that.physics.SetOriginPosition(new b2Vec2(t[0], t[1]), 0);
+		that.physics.SetCenterPosition(new b2Vec2(t[0], t[1]), that.physics.GetRotation());
 	});
 };
 
