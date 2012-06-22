@@ -311,7 +311,7 @@ var Physics = (function() {
 				debugDraw();
 			}
 
-			contactListener.update();
+			//contactListener.update();
 
 			for ( var i = 0; i < updateItems.length; ++i)
 				updateItems[i].updatePhysics();
